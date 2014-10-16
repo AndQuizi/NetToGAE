@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
+    <title>Practise - Flash Language</title>
+</head>
+<body>
+
+<!--navigation bar-->
+<ul id="nav">
+    <li><a href="/">Flash Language</a></li>
+    <li><a href="/About">About</a></li>
+    <li><a href="/Contact">Contact</a></li>
+    <li><a href="/Italian">Italian</a></li>
+    <li><a href="/French">French</a></li>
+    <li><a href="#">Register</a></li>
+    <li><a href="#">Login</a></li>
+</ul>
+
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    p {
+        text-align: center;
+    }
+
+
+</style>
+
+<h1>{{ language }}</h1>
+
+<p>Tests</p>
+
+<p>&nbsp;</p>
+
+<div class="form-group" style="text-align: center;">
+
+    <form action="/PractisePage" method="post">
+        <input id="button" name="diffChoice" type="submit" value="Beginner">
+    </form>
+    <p>&nbsp;</p>
+
+    <form action="/PractisePage" method="post">
+        <input id="button" name="diffChoice" type="submit" value="Intermediate">
+    </form>
+    <p>&nbsp;</p>
+
+    <form action="/PractisePage" method="post">
+        <input id="button" name="diffChoice" type="submit" value="Advanced">
+    </form>
+</div>
+<!--footer-->
+<hr/>
+<footer>
+    <p id="footer">&copy; 2014 - Flash Language</p>
+</footer>
+
+
+</body>
+</html>

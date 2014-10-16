@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
+    <title>Practise - Flash Language</title>
+</head>
+<body>
+
+<!--navigation bar-->
+<ul id="nav">
+    <li><a href="/">Flash Language</a></li>
+    <li><a href="/About">About</a></li>
+    <li><a href="/Contact">Contact</a></li>
+    <li><a href="/Italian">Italian</a></li>
+    <li><a href="/French">French</a></li>
+    <li><a href="#">Register</a></li>
+    <li><a href="#">Login</a></li>
+</ul>
+
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    p {
+        text-align: center;
+    }
+
+    #button2 {
+        width: 250px;
+        height: 40px;
+        text-align: center;
+
+    }
+    #skipBtn, #btn1, #btn2, #btn3, #btn4 {
+        width: 250px;
+        height: 40px;
+        text-align: center;
+
+    }
+    .table {
+        text-align: center;
+    }
+
+    #btns {
+        text-align: center;
+    }
+</style>
+<!--TRYING TO GET SKIP TO NOT DOUBLE POST IF CLICKED TOO FAST-->
+<!--onclick="lockoutSubmit(this)" DOES NOT WORK-->
+<!--onclick="this.disabled=true;this.form.submit();"  DOES NOT WORK-->
+<!--The below code is the solution!-->
+<script>
+setTimeout (function(){
+        document.getElementById('skipBtn').disabled = null;
+        document.getElementById('btn1').disabled = null;
+        document.getElementById('btn2').disabled = null;
+        document.getElementById('btn3').disabled = null;
+        document.getElementById('btn4').disabled = null;
+        },600);
+
+</script>
+
+<h1>Practise</h1>
+
+<!--End and Skip button-->
+<div align="center">
+    <table style="text-align: center;" cellpadding="20">
+        <tr>
+            <td>
+                <form action="/PractisePage" method="post">
+                    <input id="button2" name="endPractise" type="submit" value="End"/>
+                </form>
+            <td>
+                <form action="/PractisePage" method="post">
+                    <input id="skipBtn" name="skipQuestion" type="submit" value="Skip" disabled="disabled"/>
+                </form>
+        </tr>
+    </table>
+</div>
+<!--Current word and image-->
+<div style="text-align: center">
+    <img src="/images/{{ currWord.imagePath }}" width="300" height="200" border="1"></a>
+</div>
+<h1>{{ currWord.englishWord }}</h1>
+
+<!--Answer choices-->
+<div align="center">
+    <table style="text-align: center;" cellpadding="20">
+        <tr>
+            <td>
+                <form action="/PractisePage" method="post">
+                    <input id="btn1" name="answerChoice" type="submit" value="{{ choice1.translatedWord }}" disabled="disabled">
+                </form>
+
+            <td>
+                <form action="/PractisePage" method="post">
+                    <input id="btn2" name="answerChoice" type="submit" value="{{ choice2.translatedWord }}" disabled="disabled">
+                </form>
+        </tr>
+        <tr>
+            <td>
+                <form action="/PractisePage" method="post">
+                    <input id="btn3" name="answerChoice" type="submit" value="{{ choice3.translatedWord }}" disabled="disabled">
+                </form>
+            <td>
+                <form action="/PractisePage" method="post">
+                    <input id="btn4" name="answerChoice" type="submit" value="{{ choice4.translatedWord }}" disabled="disabled">
+                </form>
+        </tr>
+    </table>
+</div>
+<p>Score: {{ score }}</p>
+
+<!--footer-->
+<hr/>
+<footer>
+    <p id="footer">&copy; 2014 - Flash Language</p>
+</footer>
+
+
+</body>
+</html>

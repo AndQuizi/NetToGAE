@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+<html>
+  <body>
+    {% for words in words %}
+      {% if words.englishWord %}
+        <b>{{ words.englishWord}}</b>
+        <b>{{ words.translatedWord}}</b>
+      {% else %}
+       no words here
+      {% endif %}
+
+    {% endfor %}
+
+
+  </body>
+</html>
