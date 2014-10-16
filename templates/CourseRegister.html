@@ -32,16 +32,17 @@
 
 <h1>{{ language }}</h1>
 
-<p>Tests</p>
-
+<p>Course Register</p>
+<p>{{ message }}</p>
 <p>&nbsp;</p>
 {% if user %}
-    <p>
-    <div class="form-group" style="text-align: center;">
 
-        You can <a href="{{ logout_url }}">sign out</a>
-    </div>
-    </p>
+     <p >Enter the course code below.</p>
+     <form method="post">
+     Course Code: <input type="text" name="courseCode">
+     <input type="submit" value="Submit">
+     </form>
+    You can <a href="{{ logout_url }}">sign out</a>
 {% else %}
     <p>
         You must be signed in.

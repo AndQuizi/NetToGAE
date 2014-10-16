@@ -10,7 +10,8 @@ import jinja2
 import webapp2
 from google.appengine.api import users
 from django.conf import settings
-from FlashLanguage.models import Word, UserResults, PractiseSession, Language
+from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses
+import datetime
 settings._target = None
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -100,6 +101,7 @@ class MainPage(webapp2.RequestHandler):
 class Italian(webapp2.RequestHandler):
     #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
     #Removing either of these functions will cause runtime a error
+    #I may find an easier way to do this later
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -152,7 +154,6 @@ class French(webapp2.RequestHandler):
 class About(webapp2.RequestHandler):
 
     def get(self):
-
         template = JINJA_ENVIRONMENT.get_template('templates/About.html')
         self.response.write(template.render())
 
@@ -488,17 +489,179 @@ class TestIntro(webapp2.RequestHandler):
 
     def get(self):
         lang = self.session.get('Language')
+        if lang:
+            user = users.get_current_user()
+            login_url = users.create_login_url(self.request.path)
+            logout_url = users.create_logout_url(self.request.path)
+            #If user is signed in
+            if user:
+                template_values = {
+                            'language': lang,
+                            'user': user,
+                            'login_url': login_url,
+                            'logout_url': logout_url,
+                }
+                query = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch()
 
-        #used to identify the current practise session
-        #this is a workaround to a problem relating to session keys
-        practiseKey = id_generator()
-        self.session['practiseKey'] = practiseKey
+                #The student never signed up for a course before
+                if len(query) == 0:
+                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+                    self.response.write(template.render(template_values))
 
+                #If the user is signing up for French
+                elif lang == "French":
+                    #The user is signed up
+                    if query[0].french:
+                        testKey = id_generator()
+                        self.session['testKey'] = testKey
+
+                        template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+                        self.response.write(template.render(template_values))
+                    #The user is not signed up
+                    else:
+                        template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+                        self.response.write(template.render(template_values))
+
+                #If the user is signing up for Italian
+                else:
+                    #The user is signed up
+                    if query[0].italian:
+                        testKey = id_generator()
+                        self.session['testKey'] = testKey
+
+                        template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+                        self.response.write(template.render(template_values))
+                    #The user is not signed up
+                    else:
+                        template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+                        self.response.write(template.render(template_values))
+
+            #If user is not signed in
+            else:
+                template_values = {
+                    'language': lang,
+                    'login_url': login_url,
+                    'logout_url': logout_url,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+                self.response.write(template.render(template_values))
+
+        #User navigated to this page without visiting a language first
+        else:
+            template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
+            self.response.write(template.render())
+
+    #The user submitted a course code to sign up for a course
+    def post(self):
+        #Current language, user, user inputted course code
+        lang = self.session.get('Language')
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        code = self.request.get('courseCode')
+
+        #Invalid code message
+        message = "Invalid course code."
         template_values = {
             'language': lang,
+            'user': user,
+            'login_url': login_url,
+            'logout_url': logout_url,
+            'message': message,
         }
-        template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
-        self.response.write(template.render(template_values))
+        #Get current student courses
+        query = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch()
+
+        #The student never signed up for a course before
+        if len(query) == 0:
+            if lang == "French":
+                #Get French course code
+                course_code = Language.query(Language.languageName == "French").fetch().pop().courseCode
+
+                #If user code is same as real code
+                #Signs user up and redirects to test intro page
+                if code == course_code:
+                    StudentCourses(studentID=user.user_id(),
+                                   french=True).put()
+
+                    testKey = id_generator()
+                    self.session['testKey'] = testKey
+
+                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+                    self.response.write(template.render(template_values))
+
+                #Invalid course code
+                else:
+                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+                    self.response.write(template.render(template_values))
+
+            if lang == "Italian":
+                #Get Italian course code
+                course_code = Language.query(Language.languageName == "Italian").fetch().pop().courseCode
+
+                #If user code is same as real code
+                #Signs user up and redirects to test intro page
+                if code == course_code:
+                    StudentCourses(studentID=user.user_id(),
+                                   italian=True).put()
+                    testKey = id_generator()
+                    self.session['testKey'] = testKey
+
+                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+                    self.response.write(template.render(template_values))
+
+                #Invalid course code
+                else:
+                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+                    self.response.write(template.render(template_values))
+
+        #The user has signed up for a class before
+        #In this case edit already created StudentCourse entity
+        else:
+            if lang == "French":
+                #Get French course code
+                course_code = Language.query(Language.languageName == "French").fetch().pop().courseCode
+
+                #If user code is same as real code
+                #Signs user up and redirects to test intro page
+                if code == course_code:
+                    student_course = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch().pop()
+                    student_course.french = True
+                    student_course.put()
+
+                    testKey = id_generator()
+                    self.session['testKey'] = testKey
+
+                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+                    self.response.write(template.render(template_values))
+
+                #Invalid course code
+                else:
+                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+                    self.response.write(template.render(template_values))
+
+            if lang == "Italian":
+                #Get Italian course code
+                course_code = Language.query(Language.languageName == "Italian").fetch().pop().courseCode
+
+                #If user code is same as real code
+                #Signs user up and redirects to test intro page
+                if code == course_code:
+                    student_course = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch().pop()
+                    student_course.italian = True
+                    student_course.put()
+
+                    testKey = id_generator()
+                    self.session['testKey'] = testKey
+
+                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+                    self.response.write(template.render(template_values))
+
+                #Invalid course code
+                else:
+                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+                    self.response.write(template.render(template_values))
+
 
 
 application = webapp2.WSGIApplication([
@@ -509,4 +672,5 @@ application = webapp2.WSGIApplication([
                                           ('/Contact', Contact),
                                           ('/PractiseIntro', PractiseIntro),
                                           ('/PractisePage', PractisePage),
+                                          ('/TestIntro', TestIntro),
                                       ], config=config, debug=True)

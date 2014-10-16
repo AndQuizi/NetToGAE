@@ -24,7 +24,6 @@ class PractiseSession(ndb.Model):
 
 #Language types
 class Language(ndb.Model):
-    """Models an individual Guestbook entry."""
     languageName = ndb.StringProperty(required=True)
     courseCode = ndb.StringProperty(required=True)
 
@@ -325,3 +324,10 @@ class Word(ndb.Model):
              languageName='French',
              translatedWord='Dimanche',
              difficulty=2).put()
+
+
+#A model for tracking which student is in which course
+class StudentCourses(ndb.Model):
+    studentID = ndb.StringProperty(required=True)
+    french = ndb.BooleanProperty(default=False)
+    italian = ndb.BooleanProperty(default=False)
