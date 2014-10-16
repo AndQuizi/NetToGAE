@@ -1,5 +1,7 @@
 NetToGAE
 ========
+Python - 2.7.8
+Django - Latest
 
 REUPLOADED project .Net to GAE 
 
