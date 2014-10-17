@@ -10,7 +10,7 @@ import jinja2
 import webapp2
 from google.appengine.api import users
 from django.conf import settings
-from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses
+from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests
 import datetime
 settings._target = None
 
@@ -468,6 +468,8 @@ class PractisePage(webapp2.RequestHandler):
                 self.response.write(template.render(template_values))
 
 
+#Test intro page, includes Course Register page
+#Checks if user is signed up for course and functions accordingly
 class TestIntro(webapp2.RequestHandler):
     #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
     #Removing either of these functions will cause runtime a error
@@ -515,6 +517,31 @@ class TestIntro(webapp2.RequestHandler):
                         testKey = id_generator()
                         self.session['testKey'] = testKey
 
+                        #Get current time
+                        current_date = datetime.datetime.now()
+                        #Query tests, filtering start/end dates and language
+                        tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
+
+                        #BadRequestError: Only one inequality filter per query is supported.
+                        #I can't compare the end date directly in the query, so below is a workaround
+                        valid_tests = []
+                        for test in tests:
+                            if test.endDate > current_date:
+                                valid_tests.append(test)
+
+                        no_tests_message = ""
+                        if len(valid_tests) == 0:
+                            no_tests_message = "There are no tests at this time."
+
+                        template_values = {
+                            'language': lang,
+                            'user': user,
+                            'login_url': login_url,
+                            'logout_url': logout_url,
+                            'tests': valid_tests,
+                            'message': no_tests_message,
+                        }
+
                         template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
                         self.response.write(template.render(template_values))
                     #The user is not signed up
@@ -528,6 +555,31 @@ class TestIntro(webapp2.RequestHandler):
                     if query[0].italian:
                         testKey = id_generator()
                         self.session['testKey'] = testKey
+
+                        #Get current time
+                        current_date = datetime.datetime.now()
+                        #Query tests, filtering start/end dates and language
+                        tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
+
+                        #BadRequestError: Only one inequality filter per query is supported.
+                        #I can't compare the end date directly in the query, so below is a workaround
+                        valid_tests = []
+                        for test in tests:
+                            if test.endDate > current_date:
+                                valid_tests.append(test)
+
+                        no_tests_message = ""
+                        if len(valid_tests) == 0:
+                            no_tests_message = "There are no tests at this time."
+
+                        template_values = {
+                            'language': lang,
+                            'user': user,
+                            'login_url': login_url,
+                            'logout_url': logout_url,
+                            'tests': valid_tests,
+                            'message': no_tests_message,
+                        }
 
                         template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
                         self.response.write(template.render(template_values))
@@ -587,6 +639,31 @@ class TestIntro(webapp2.RequestHandler):
                     testKey = id_generator()
                     self.session['testKey'] = testKey
 
+                    #Get current time
+                    current_date = datetime.datetime.now()
+                    #Query tests, filtering start/end dates and language
+                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
+
+                    #BadRequestError: Only one inequality filter per query is supported.
+                    #I can't compare the end date directly in the query, so below is a workaround
+                    valid_tests = []
+                    for test in tests:
+                        if test.endDate > current_date:
+                            valid_tests.append(test)
+
+                    no_tests_message = ""
+                    if len(valid_tests) == 0:
+                        no_tests_message = "There are no tests at this time."
+
+                    template_values = {
+                        'language': lang,
+                        'user': user,
+                        'login_url': login_url,
+                        'logout_url': logout_url,
+                        'tests': valid_tests,
+                        'message': no_tests_message,
+                    }
+
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
                     self.response.write(template.render(template_values))
 
@@ -605,7 +682,31 @@ class TestIntro(webapp2.RequestHandler):
                     StudentCourses(studentID=user.user_id(),
                                    italian=True).put()
                     testKey = id_generator()
-                    self.session['testKey'] = testKey
+
+                    #Get current time
+                    current_date = datetime.datetime.now()
+                    #Query tests, filtering start/end dates and language
+                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
+
+                    #BadRequestError: Only one inequality filter per query is supported.
+                    #I can't compare the end date directly in the query, so below is a workaround
+                    valid_tests = []
+                    for test in tests:
+                        if test.endDate > current_date:
+                            valid_tests.append(test)
+
+                    no_tests_message = ""
+                    if len(valid_tests) == 0:
+                        no_tests_message = "There are no tests at this time."
+
+                    template_values = {
+                        'language': lang,
+                        'user': user,
+                        'login_url': login_url,
+                        'logout_url': logout_url,
+                        'tests': valid_tests,
+                        'message': no_tests_message,
+                    }
 
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
                     self.response.write(template.render(template_values))
@@ -631,6 +732,30 @@ class TestIntro(webapp2.RequestHandler):
 
                     testKey = id_generator()
                     self.session['testKey'] = testKey
+                    #Get current time
+                    current_date = datetime.datetime.now()
+                    #Query tests, filtering start/end dates and language
+                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
+
+                    #BadRequestError: Only one inequality filter per query is supported.
+                    #I can't compare the end date directly in the query, so below is a workaround
+                    valid_tests = []
+                    for test in tests:
+                        if test.endDate > current_date:
+                            valid_tests.append(test)
+
+                    no_tests_message = ""
+                    if len(valid_tests) == 0:
+                        no_tests_message = "There are no tests at this time."
+
+                    template_values = {
+                        'language': lang,
+                        'user': user,
+                        'login_url': login_url,
+                        'logout_url': logout_url,
+                        'tests': valid_tests,
+                        'message': no_tests_message,
+                    }
 
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
                     self.response.write(template.render(template_values))
@@ -653,6 +778,32 @@ class TestIntro(webapp2.RequestHandler):
 
                     testKey = id_generator()
                     self.session['testKey'] = testKey
+
+                    #Get current time
+                    current_date = datetime.datetime.now()
+                    #Query tests, filtering start/end dates and language
+                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
+
+                    #BadRequestError: Only one inequality filter per query is supported.
+                    #I can't compare the end date directly in the query, so below is a workaround
+                    valid_tests = []
+                    for test in tests:
+                        if test.endDate > current_date:
+                            valid_tests.append(test)
+
+                    no_tests_message = ""
+                    if len(valid_tests) == 0:
+                        no_tests_message = "There are no tests at this time."
+
+
+                    template_values = {
+                        'language': lang,
+                        'user': user,
+                        'login_url': login_url,
+                        'logout_url': logout_url,
+                        'tests': valid_tests,
+                        'message': no_tests_message,
+                    }
 
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
                     self.response.write(template.render(template_values))

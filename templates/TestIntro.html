@@ -35,13 +35,23 @@
 <p>Tests</p>
 
 <p>&nbsp;</p>
+<p>{{ message }}</p>
 {% if user %}
     <p>
     <div class="form-group" style="text-align: center;">
-
         You can <a href="{{ logout_url }}">sign out</a>
     </div>
     </p>
+
+    {% for test in tests %}
+
+        <b>{{ test.testName }}</b>
+
+
+    {% endfor %}
+
+
+
 {% else %}
     <p>
         You must be signed in.

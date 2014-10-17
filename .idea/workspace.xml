@@ -12,7 +12,7 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/NetToGAE$NetToGAE.coverage" NAME="NetToGAE Coverage Results" MODIFIED="1413502664958" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/NetToGAE$NetToGAE.coverage" NAME="NetToGAE Coverage Results" MODIFIED="1413508880702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -29,8 +29,20 @@
       <file leaf-file-name="main.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.21643287" vertical-offset="7865" max-vertical-offset="11577">
-              <caret line="469" column="0" selection-start-line="469" selection-start-column="0" selection-end-line="469" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.07459678" vertical-offset="8956" max-vertical-offset="13617">
+              <caret line="560" column="67" selection-start-line="560" selection-start-column="67" selection-end-line="560" selection-end-column="67" />
+              <folding>
+                <element signature="e#5418#6584#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TestIntro.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/TestIntro.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-5.0" vertical-offset="499" max-vertical-offset="1377">
+              <caret line="37" column="13" selection-start-line="37" selection-start-column="13" selection-end-line="37" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -59,11 +71,9 @@
       <file leaf-file-name="tests.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashLanguage/tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="3323" max-vertical-offset="3893">
-              <caret line="207" column="41" selection-start-line="207" selection-start-column="41" selection-end-line="207" selection-end-column="41" />
-              <folding>
-                <element signature="e#471#484#0" expanded="true" />
-              </folding>
+            <state vertical-scroll-proportion="0.0" vertical-offset="3306" max-vertical-offset="3825">
+              <caret line="214" column="20" selection-start-line="213" selection-start-column="0" selection-end-line="214" selection-end-column="31" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -71,15 +81,11 @@
       <file leaf-file-name="models.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FlashLanguage/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="217" max-vertical-offset="1122">
-              <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="34" selection-end-column="47" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="558" max-vertical-offset="1054">
+              <caret line="336" column="0" selection-start-line="336" selection-start-column="0" selection-end-line="336" selection-end-column="0" />
               <folding>
-                <element signature="e#1636#3142#0" expanded="false" />
-                <element signature="e#3199#5590#0" expanded="false" />
-                <element signature="e#5643#7065#0" expanded="false" />
-                <element signature="e#7116#8603#0" expanded="false" />
-                <element signature="e#8655#10076#0" expanded="false" />
-                <element signature="e#10132#12125#0" expanded="false" />
+                <element signature="e#1333#12130#0" expanded="false" />
+                <element signature="e#1638#3144#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -100,9 +106,9 @@
         <option value="$PROJECT_DIR$/FlashLanguage/tests.py" />
         <option value="$PROJECT_DIR$/templates/French.html" />
         <option value="$PROJECT_DIR$/templates/Italian.html" />
+        <option value="$PROJECT_DIR$/templates/CourseRegister.html" />
         <option value="$PROJECT_DIR$/FlashLanguage/models.py" />
         <option value="$PROJECT_DIR$/templates/TestIntro.html" />
-        <option value="$PROJECT_DIR$/templates/CourseRegister.html" />
         <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
@@ -262,23 +268,6 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="Python.AppEngineServer" factoryName="App Engine server">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="NetToGAE" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="launchJavascriptDebuger" value="false" />
-      <option name="host" value="127.0.0.1" />
-      <option name="browserUrl" value="" />
-      <option name="additionalOptions" value="" />
-      <method />
-    </configuration>
     <configuration default="true" type="tests" factoryName="Nosetests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -301,6 +290,23 @@
       <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
+    <configuration default="true" type="Python.AppEngineServer" factoryName="App Engine server">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="NetToGAE" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="host" value="127.0.0.1" />
+      <option name="browserUrl" value="" />
+      <option name="additionalOptions" value="" />
+      <method />
+    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -316,6 +322,9 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Unittests">
@@ -339,9 +348,6 @@
       <option name="PUREUNITTEST" value="true" />
       <option name="PARAMS" value="" />
       <option name="USE_PARAM" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
       <method />
     </configuration>
     <configuration default="true" type="tests" factoryName="Doctests">
@@ -408,6 +414,9 @@
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="fd8b890f-f132-45a4-ba07-8a47f1f1de07" name="Default" comment="" />
@@ -417,7 +426,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1616" height="916" extended-state="7" />
+    <frame x="-8" y="-8" width="1616" height="916" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -425,11 +434,11 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25321338" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25642672" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32780612" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33163264" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -462,6 +471,51 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="7865" max-vertical-offset="11577">
+          <caret line="469" column="0" selection-start-line="469" selection-start-column="0" selection-end-line="469" selection-end-column="0" />
+          <folding>
+            <element signature="e#5418#6584#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/Italian.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="510" max-vertical-offset="1105">
+          <caret line="40" column="34" selection-start-line="40" selection-start-column="34" selection-end-line="40" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/French.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="459" max-vertical-offset="1105">
+          <caret line="42" column="11" selection-start-line="42" selection-start-column="11" selection-end-line="42" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashLanguage/tests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3323" max-vertical-offset="3893">
+          <caret line="207" column="41" selection-start-line="207" selection-start-column="41" selection-end-line="207" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashLanguage/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="510" max-vertical-offset="5746">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="34" selection-end-column="47" />
+          <folding>
+            <element signature="e#1333#12130#0" expanded="false" />
+            <element signature="e#1638#3144#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="306" max-vertical-offset="459">
@@ -474,7 +528,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="2652" max-vertical-offset="8789">
           <caret line="156" column="31" selection-start-line="156" selection-start-column="31" selection-end-line="156" selection-end-column="31" />
-          <folding />
+          <folding>
+            <element signature="e#5418#6584#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -482,9 +538,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="153" max-vertical-offset="3876">
           <caret line="9" column="3" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
-          <folding>
-            <element signature="e#471#484#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -493,12 +547,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="5078" max-vertical-offset="5644">
           <caret line="326" column="32" selection-start-line="47" selection-start-column="8" selection-end-line="326" selection-end-column="32" />
           <folding>
-            <element signature="e#1636#3142#0" expanded="false" />
-            <element signature="e#3199#5590#0" expanded="false" />
-            <element signature="e#5643#7065#0" expanded="false" />
-            <element signature="e#7116#8603#0" expanded="false" />
-            <element signature="e#8655#10076#0" expanded="false" />
-            <element signature="e#10132#12125#0" expanded="false" />
+            <element signature="e#1333#12130#0" expanded="false" />
+            <element signature="e#1638#3144#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -507,7 +557,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="629">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -523,7 +572,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.18046708" vertical-offset="612" max-vertical-offset="1173">
           <caret line="41" column="75" selection-start-line="41" selection-start-column="59" selection-end-line="41" selection-end-column="75" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -531,6 +579,48 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-13.730769" vertical-offset="1224" max-vertical-offset="2210">
           <caret line="93" column="107" selection-start-line="93" selection-start-column="71" selection-end-line="93" selection-end-column="107" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/CourseRegister.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-11.115385" vertical-offset="510" max-vertical-offset="1224">
+          <caret line="47" column="29" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Google/google_appengine/lib/webapp2-2.3/webapp2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3326613" vertical-offset="8845" max-vertical-offset="33184">
+          <caret line="544" column="0" selection-start-line="544" selection-start-column="0" selection-end-line="544" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashLanguage/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="558" max-vertical-offset="1054">
+          <caret line="336" column="0" selection-start-line="336" selection-start-column="0" selection-end-line="336" selection-end-column="0" />
+          <folding>
+            <element signature="e#1333#12130#0" expanded="false" />
+            <element signature="e#1638#3144#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/Italian.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-6.5384617" vertical-offset="510" max-vertical-offset="1105">
+          <caret line="40" column="34" selection-start-line="40" selection-start-column="34" selection-end-line="40" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FlashLanguage/tests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3306" max-vertical-offset="3825">
+          <caret line="214" column="20" selection-start-line="213" selection-start-column="0" selection-end-line="214" selection-end-column="31" />
           <folding />
         </state>
       </provider>
@@ -543,60 +633,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/FlashLanguage/tests.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3323" max-vertical-offset="3893">
-          <caret line="207" column="41" selection-start-line="207" selection-start-column="41" selection-end-line="207" selection-end-column="41" />
-          <folding>
-            <element signature="e#471#484#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/FlashLanguage/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="217" max-vertical-offset="1122">
-          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="34" selection-end-column="47" />
-          <folding>
-            <element signature="e#1636#3142#0" expanded="false" />
-            <element signature="e#3199#5590#0" expanded="false" />
-            <element signature="e#5643#7065#0" expanded="false" />
-            <element signature="e#7116#8603#0" expanded="false" />
-            <element signature="e#8655#10076#0" expanded="false" />
-            <element signature="e#10132#12125#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/CourseRegister.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-11.115385" vertical-offset="510" max-vertical-offset="1224">
-          <caret line="47" column="29" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/TestIntro.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.35940802" vertical-offset="612" max-vertical-offset="1207">
-          <caret line="46" column="29" selection-start-line="46" selection-start-column="29" selection-end-line="46" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/Italian.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.5384617" vertical-offset="510" max-vertical-offset="1105">
-          <caret line="40" column="34" selection-start-line="40" selection-start-column="34" selection-end-line="40" selection-end-column="34" />
+        <state vertical-scroll-proportion="-5.0" vertical-offset="499" max-vertical-offset="1377">
+          <caret line="37" column="13" selection-start-line="37" selection-start-column="13" selection-end-line="37" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21643287" vertical-offset="7865" max-vertical-offset="11577">
-          <caret line="469" column="0" selection-start-line="469" selection-start-column="0" selection-end-line="469" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="0.07459678" vertical-offset="8956" max-vertical-offset="13617">
+          <caret line="560" column="67" selection-start-line="560" selection-start-column="67" selection-end-line="560" selection-end-column="67" />
+          <folding>
+            <element signature="e#5418#6584#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>

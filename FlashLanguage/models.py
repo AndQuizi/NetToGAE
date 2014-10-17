@@ -12,6 +12,8 @@ class UserResults(ndb.Model):
     correctAnswer = ndb.StringProperty(required=True)
 
 
+
+
 #A model used to keep track of the users current practise session
 class PractiseSession(ndb.Model):
     sessionID = ndb.StringProperty(required=True)
@@ -331,3 +333,14 @@ class StudentCourses(ndb.Model):
     studentID = ndb.StringProperty(required=True)
     french = ndb.BooleanProperty(default=False)
     italian = ndb.BooleanProperty(default=False)
+
+
+#Questions used to be a StructuredProperty(word)
+#It is easier to just leave it as a string
+class Tests(ndb.Model):
+    languageName = ndb.StringProperty(required=True)
+    testName = ndb.StringProperty(required=True)
+    startDate = ndb.DateTimeProperty(required=True)
+    endDate = ndb.DateTimeProperty(required=True)
+    attempts = ndb.IntegerProperty(default=3)
+    questions = ndb.StringProperty(repeated=True)
