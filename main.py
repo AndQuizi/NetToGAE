@@ -12,6 +12,7 @@ from google.appengine.api import users
 from django.conf import settings
 from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests
 import datetime
+import time
 settings._target = None
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -203,6 +204,10 @@ class PractiseIntro(webapp2.RequestHandler):
 #Practise page, includes practise results
 #Uses POST not GET
 #This class encompasses all of practise mode
+#TODO: BUG: There is a .pop() bug where the Practise Session can't get results from the datastore
+#TODO: This is due to either form double clicking (this may screw up datastore consistency)
+#TODO: Or because I am deleting a Practise Session entity then immediately adding a new one and then reloading the page
+#TODO: It is a hard bug to reproduce sometimes. It happens once in a blue moon.
 class PractisePage(webapp2.RequestHandler):
     #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
     #Removing either of these functions will cause runtime a error
@@ -286,7 +291,7 @@ class PractisePage(webapp2.RequestHandler):
         elif self.request.get('endPractise'):
             #Get information on current session
             practise_query = PractiseSession.query(PractiseSession.sessionID == session_key)
-            practise_state = practise_query.fetch(1).pop()
+            practise_state = practise_query.fetch().pop()
             score = practise_state.score
 
             #Get user results
@@ -314,7 +319,7 @@ class PractisePage(webapp2.RequestHandler):
         elif self.request.get('skipQuestion'):
             #Get information on current session
             practise_query = PractiseSession.query(PractiseSession.sessionID == session_key)
-            practise_state = practise_query.fetch(1).pop()
+            practise_state = practise_query.fetch().pop()
 
             #Get the word that was skipped
             word = practise_state.currWord
@@ -375,7 +380,7 @@ class PractisePage(webapp2.RequestHandler):
 
             #Get information on current session
             practise_query = PractiseSession.query(PractiseSession.sessionID == session_key)
-            practise_state = practise_query.fetch(1).pop()
+            practise_state = practise_query.fetch().pop()
 
             diff = practise_state.difficulty
             prevWord = practise_state.currWord
