@@ -10,7 +10,7 @@ import jinja2
 import webapp2
 from google.appengine.api import users
 from django.conf import settings
-from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests
+from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests, TestSession
 import datetime
 import time
 settings._target = None
@@ -58,12 +58,30 @@ def get_word_from_translation(translation):
     return words
 
 
+#Accepts list of english words
+#Returns a list of translated words
+def translate_list(wordList, lang):
+    returnList = []
+    for word in wordList:
+        word_query = Word.query(Word.englishWord == word, Word.languageName == lang).fetch().pop()
+        returnList.append(word_query.translatedWord)
+    return returnList
+
 #Called on first practise question
 #Returns words to be used as answer choices
 #Does not return the current word
 def get_choices(language, diff, currWord):
     diffNum = get_difficulty_rating(diff)
     choice_query = Word.query(Word.languageName == language, Word.difficulty == diffNum, Word.translatedWord != currWord.translatedWord)
+    words = choice_query.fetch()
+    shuffle(words)
+    return words
+
+#Called on first test question
+#Returns words to be used as answer choices
+#Does not return the current word
+def get_test_choices(language, diff, currWord):
+    choice_query = Word.query(Word.languageName == language, Word.difficulty == diff, Word.translatedWord != currWord.translatedWord)
     words = choice_query.fetch()
     shuffle(words)
     return words
@@ -240,6 +258,9 @@ class PractisePage(webapp2.RequestHandler):
         #If it's the first question
         #Initializes question queue and displays first question
         if self.request.get('diffChoice'):
+            #Delete any previous entries with this key
+            prevous_session = UserResults.query(UserResults.sessionID == session_key).fetch(keys_only=True)
+            ndb.delete_multi(prevous_session)
             #Difficulty choice
             diff = self.request.get('diffChoice')
 
@@ -291,28 +312,35 @@ class PractisePage(webapp2.RequestHandler):
         elif self.request.get('endPractise'):
             #Get information on current session
             practise_query = PractiseSession.query(PractiseSession.sessionID == session_key)
-            practise_state = practise_query.fetch().pop()
-            score = practise_state.score
+            practise_state = practise_query.fetch()
+            if len(practise_state) != 0:
+                practise_state = practise_state.pop()
+                score = practise_state.score
 
-            #Get user results
-            user_result_query = UserResults.query(UserResults.sessionID == session_key).order(UserResults.questionNumber)
-            results = user_result_query.fetch()
+                #Get user results
+                user_result_query = UserResults.query(UserResults.sessionID == session_key).order(UserResults.questionNumber)
+                results = user_result_query.fetch()
 
-            #Display results
-            template_values = {
-                'results': results,
-                'score': score,
-                'questionNumber': len(results),
-            }
-            #Delete previous entries of this practise session
-            practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
-            ndb.delete_multi(practise_query)
+                #Display results
+                template_values = {
+                    'results': results,
+                    'score': score,
+                    'questionNumber': len(results),
+                }
+                #Delete previous entries of this practise session
+                practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
+                ndb.delete_multi(practise_query)
 
-            result_query = PractiseSession.query(UserResults.sessionID == session_key).fetch(keys_only=True)
-            ndb.delete_multi(result_query)
+                result_query = UserResults.query(UserResults.sessionID == session_key).fetch(keys_only=True)
+                ndb.delete_multi(result_query)
 
-            template = JINJA_ENVIRONMENT.get_template('templates/PractiseResults.html')
-            self.response.write(template.render(template_values))
+                template = JINJA_ENVIRONMENT.get_template('templates/PractiseResults.html')
+                self.response.write(template.render(template_values))
+
+            #This only calls when the user refreshes the page on the results screen, or that TODO bug occured
+            else:
+                template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
+                self.response.write(template.render())
 
         #If the user clicks the Skip button
         #Skips current word and displays new one
@@ -378,100 +406,105 @@ class PractisePage(webapp2.RequestHandler):
             #The users answer
             choice = self.request.get('answerChoice')
 
+
             #Get information on current session
             practise_query = PractiseSession.query(PractiseSession.sessionID == session_key)
-            practise_state = practise_query.fetch().pop()
+            practise_state = practise_query.fetch()
+            if len(practise_state) != 0:
+                practise_state = practise_state.pop()
+                diff = practise_state.difficulty
+                prevWord = practise_state.currWord
+                question_number = practise_state.questionNumber
+                score = practise_state.score
 
-            diff = practise_state.difficulty
-            prevWord = practise_state.currWord
-            question_number = practise_state.questionNumber
-            score = practise_state.score
+                #If the user is correct, increment score
+                if prevWord == choice:
+                    score += 1
 
-            #If the user is correct, increment score
-            if prevWord == choice:
-                score += 1
+                last_word = get_word_from_translation(prevWord).pop().englishWord
 
-            last_word = get_word_from_translation(prevWord).pop().englishWord
+                #Save user results
+                UserResults(sessionID=session_key,
+                            questionNumber=question_number,
+                            word=last_word,
+                            userAnswer=choice,
+                            correctAnswer=prevWord).put()
 
-            #Save user results
-            UserResults(sessionID=session_key,
-                        questionNumber=question_number,
-                        word=last_word,
-                        userAnswer=choice,
-                        correctAnswer=prevWord).put()
+                #Increment question number and get question queue
+                question_number += 1
+                word_list = practise_state.wordStrings
 
-            #Increment question number and get question queue
-            question_number += 1
-            word_list = practise_state.wordStrings
+                #If the question queue is not empty, get next word
+                if word_list:
+                    #Get next word
+                    current_word = get_word_from_translation(word_list.pop()).pop()
+                    translation = current_word.translatedWord
 
-            #If the question queue is not empty, get next word
-            if word_list:
-                #Get next word
-                current_word = get_word_from_translation(word_list.pop()).pop()
-                translation = current_word.translatedWord
+                    #Delete previous entries of current session
+                    practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
+                    ndb.delete_multi(practise_query)
 
-                #Delete previous entries of current session
-                practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
-                ndb.delete_multi(practise_query)
+                    #Save new current state of practise session
+                    PractiseSession(sessionID=session_key,
+                                    difficulty=diff,
+                                    wordStrings=word_list,
+                                    score=score,
+                                    currWord=translation,
+                                    questionNumber=question_number).put()
 
-                #Save new current state of practise session
-                PractiseSession(sessionID=session_key,
-                                difficulty=diff,
-                                wordStrings=word_list,
-                                score=score,
-                                currWord=translation,
-                                questionNumber=question_number).put()
+                    #Get 3 other false answers
+                    choices = get_choices(lang, diff, current_word)
 
-                #Get 3 other false answers
-                choices = get_choices(lang, diff, current_word)
+                    #Randomize choices
+                    choice_list = []
+                    choice_list.append(choices.pop())
+                    choice_list.append(choices.pop())
+                    choice_list.append(choices.pop())
+                    choice_list.append(current_word)
+                    shuffle(choice_list)
 
-                #Randomize choices
-                choice_list = []
-                choice_list.append(choices.pop())
-                choice_list.append(choices.pop())
-                choice_list.append(choices.pop())
-                choice_list.append(current_word)
-                shuffle(choice_list)
+                    #Values for template
+                    template_values = {
+                        'currWord': current_word,
+                        'choice1': choice_list.pop(),
+                        'choice2': choice_list.pop(),
+                        'choice3': choice_list.pop(),
+                        'choice4': choice_list.pop(),
+                        'score': score,
+                    }
+                    template = JINJA_ENVIRONMENT.get_template('templates/PractisePage.html')
+                    self.response.write(template.render(template_values))
 
-                #Values for template
-                template_values = {
-                    'currWord': current_word,
-                    'choice1': choice_list.pop(),
-                    'choice2': choice_list.pop(),
-                    'choice3': choice_list.pop(),
-                    'choice4': choice_list.pop(),
-                    'score': score,
-                }
-                template = JINJA_ENVIRONMENT.get_template('templates/PractisePage.html')
-                self.response.write(template.render(template_values))
+                #If the question queue is empty, display result page
+                else:
+                    #Get user results, order by question number
+                    user_result_query = UserResults.query(UserResults.sessionID == session_key).order(UserResults.questionNumber)
+                    results = user_result_query.fetch()
 
-            #If the question queue is empty, display result page
+                    #Values for template
+                    #NOTICE: The last question answered does not appear in "results" list
+                    #To workaround this I manually add the last questions information to template
+                    template_values = {
+                        'results': results,
+                        'score': score,
+                        'questionNumber': question_number-1,
+                        'answer': last_word,
+                        'choice': choice,
+                        'prevWord': prevWord,
+                    }
+                    #Deletes all practise sessions and user results saved in the datastore
+                    practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
+                    ndb.delete_multi(practise_query)
+
+                    result_query = UserResults.query(UserResults.sessionID == session_key).fetch(keys_only=True)
+                    ndb.delete_multi(result_query)
+
+                    template = JINJA_ENVIRONMENT.get_template('templates/PractiseResults.html')
+                    self.response.write(template.render(template_values))
+            #This only calls when the user refreshes the page on the results screen, or that TODO bug occured
             else:
-                #Get user results, order by question number
-                user_result_query = UserResults.query(UserResults.sessionID == session_key).order(UserResults.questionNumber)
-                results = user_result_query.fetch()
-
-                #Values for template
-                #NOTICE: The last question answered does not appear in "results" list
-                #To workaround this I manually add the last questions information to template
-                template_values = {
-                    'results': results,
-                    'score': score,
-                    'questionNumber': question_number-1,
-                    'answer': last_word,
-                    'choice': choice,
-                    'prevWord': prevWord,
-                }
-                #Deletes all practise sessions and user results saved in the datastore
-                practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
-                ndb.delete_multi(practise_query)
-
-                result_query = PractiseSession.query(UserResults.sessionID == session_key).fetch(keys_only=True)
-                ndb.delete_multi(result_query)
-
-                template = JINJA_ENVIRONMENT.get_template('templates/PractiseResults.html')
-                self.response.write(template.render(template_values))
-
+                template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
+                self.response.write(template.render())
 
 #Test intro page, includes Course Register page
 #Checks if user is signed up for course and functions accordingly
@@ -819,6 +852,250 @@ class TestIntro(webapp2.RequestHandler):
                     self.response.write(template.render(template_values))
 
 
+class TestPage(webapp2.RequestHandler):
+    #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
+    #Removing either of these functions will cause runtime a error
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        # Returns a session using the default cookie key.
+        return self.session_store.get_session()
+
+    def post(self):
+         #Language for current practise session
+        lang = self.session.get('Language')
+        user = users.get_current_user()
+
+        current_word = None
+        score = 0
+
+        #If it's the first question
+        #Initializes question queue and displays first question
+        if self.request.get('testChoice'):
+            #Delete any old results
+            result_query = UserResults.query(UserResults.sessionID == user.user_id()).fetch(keys_only=True)
+            ndb.delete_multi(result_query)
+
+            #Test choice
+            test_choice = self.request.get('testChoice')
+            query = Tests.query(Tests.testName == test_choice, Tests.languageName == lang).fetch().pop()
+
+            #Get words/questions for chosen test
+            words = query.questions
+            shuffle(words)
+            question_length = len(words)
+
+            words = translate_list(words, lang)
+            #Get first word
+            current_word = get_word_from_translation(words.pop()).pop()
+
+            #Save current session ID, difficulty, word queue, score, and current question
+            TestSession(sessionID=user.user_id(),
+                        totalQuestions=question_length,
+                        wordStrings=words,
+                        score=0,
+                        currWord=current_word.translatedWord,
+                        questionNumber=1).put()
+
+            #Get 3 other false answers of same difficulty
+            choices = get_test_choices(lang, current_word.difficulty, current_word)
+
+            #Randomize choices
+            choice_list = []
+            choice_list.append(choices.pop())
+            choice_list.append(choices.pop())
+            choice_list.append(choices.pop())
+            choice_list.append(current_word)
+            shuffle(choice_list)
+
+            #Values for template
+            template_values = {
+                'currWord': current_word,
+                'choice1': choice_list.pop(),
+                'choice2': choice_list.pop(),
+                'choice3': choice_list.pop(),
+                'choice4': choice_list.pop(),
+                'score': score,
+                'max_questions': question_length,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
+            self.response.write(template.render(template_values))
+
+        #If the user clicks the Skip button
+        #Skips current word and displays new one
+        elif self.request.get('skipQuestion'):
+            #Get information on current session
+            test_query = TestSession.query(TestSession.sessionID == user.user_id())
+            test_state = test_query.fetch().pop()
+
+            #Get the word that was skipped
+            word = test_state.currWord
+            word_list = test_state.wordStrings
+
+            #Add skipped word back to queue
+            word_list.insert(0, word)
+            score = test_state.score
+
+            #Get more information on current session
+            test_choice = test_state.totalQuestions
+            question_number = test_state.questionNumber
+
+            #Get a new word for the next question
+            current_word = get_word_from_translation(word_list.pop()).pop()
+            translation = current_word.translatedWord
+
+            #Delete previous entries of this practise session
+            test_query = TestSession.query(TestSession.sessionID == user.user_id()).fetch(keys_only=True)
+            ndb.delete_multi(test_query)
+
+            #Save current practise session
+            TestSession(sessionID=user.user_id(),
+                        totalQuestions=test_choice,
+                        wordStrings=word_list,
+                        score=score,
+                        currWord=translation,
+                        questionNumber=question_number).put()
+
+            #Get 3 other false answers
+            choices = get_test_choices(lang, current_word.difficulty, current_word)
+
+            #Randomize choices
+            choice_list = []
+            choice_list.append(choices.pop())
+            choice_list.append(choices.pop())
+            choice_list.append(choices.pop())
+            choice_list.append(current_word)
+            shuffle(choice_list)
+
+            #Values for template
+            template_values = {
+                'currWord': current_word,
+                'choice1': choice_list.pop(),
+                'choice2': choice_list.pop(),
+                'choice3': choice_list.pop(),
+                'choice4': choice_list.pop(),
+                'score': score,
+                'max_questions': test_choice,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
+            self.response.write(template.render(template_values))
+
+        #Called when user clicks an answer
+        #Checks answer and displays next question
+        elif self.request.get('answerChoice'):
+            #The users answer
+            choice = self.request.get('answerChoice')
+
+            #Get information on current session
+            test_query = TestSession.query(TestSession.sessionID == user.user_id())
+            test_state = test_query.fetch()
+            if len(test_state) != 0:
+                test_state = test_state.pop()
+                test_choice = test_state.totalQuestions
+                prevWord = test_state.currWord
+                question_number = test_state.questionNumber
+                score = test_state.score
+
+                #If the user is correct, increment score
+                if prevWord == choice:
+                    score += 1
+
+                last_word = get_word_from_translation(prevWord).pop().englishWord
+
+                #Save user results
+                UserResults(sessionID=user.user_id(),
+                            questionNumber=question_number,
+                            word=last_word,
+                            userAnswer=choice,
+                            correctAnswer=prevWord).put()
+
+                #Increment question number and get question queue
+                question_number += 1
+                word_list = test_state.wordStrings
+
+                #If the question queue is not empty, get next word
+                if word_list:
+                    #Get next word
+                    current_word = get_word_from_translation(word_list.pop()).pop()
+                    translation = current_word.translatedWord
+
+                    #Delete previous entries of current session
+                    test_query = TestSession.query(TestSession.sessionID == user.user_id()).fetch(keys_only=True)
+                    ndb.delete_multi(test_query)
+
+                    #Save new current state of practise session
+                    TestSession(sessionID=user.user_id(),
+                                totalQuestions=test_choice,
+                                wordStrings=word_list,
+                                score=score,
+                                currWord=translation,
+                                questionNumber=question_number).put()
+
+                    #Get 3 other false answers
+                    choices = get_test_choices(lang, current_word.difficulty, current_word)
+
+                    #Randomize choices
+                    choice_list = []
+                    choice_list.append(choices.pop())
+                    choice_list.append(choices.pop())
+                    choice_list.append(choices.pop())
+                    choice_list.append(current_word)
+                    shuffle(choice_list)
+
+                    #Values for template
+                    template_values = {
+                        'currWord': current_word,
+                        'choice1': choice_list.pop(),
+                        'choice2': choice_list.pop(),
+                        'choice3': choice_list.pop(),
+                        'choice4': choice_list.pop(),
+                        'score': score,
+                        'max_questions': test_choice,
+                    }
+                    template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
+                    self.response.write(template.render(template_values))
+
+                #If the question queue is empty, display result page
+                else:
+                    #Get user results, order by question number
+                    user_result_query = UserResults.query(UserResults.sessionID == user.user_id()).order(UserResults.questionNumber)
+                    results = user_result_query.fetch()
+
+                    #Values for template
+                    #NOTICE: The last question answered does not appear in "results" list
+                    #To workaround this I manually add the last questions information to template
+                    template_values = {
+                        'results': results,
+                        'score': score,
+                        'questionNumber': question_number-1,
+                        'answer': last_word,
+                        'choice': choice,
+                        'prevWord': prevWord,
+                    }
+                    #Deletes all practise sessions and user results saved in the datastore
+                    test_query = TestSession.query(TestSession.sessionID == user.user_id()).fetch(keys_only=True)
+                    ndb.delete_multi(test_query)
+
+                    result_query = UserResults.query(UserResults.sessionID == user.user_id()).fetch(keys_only=True)
+                    ndb.delete_multi(result_query)
+
+                    template = JINJA_ENVIRONMENT.get_template('templates/TestResults.html')
+                    self.response.write(template.render(template_values))
+
+            #This only calls when the user refreshes the page on the results screen, or that TODO bug occured
+            else:
+                template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
+                self.response.write(template.render())
 
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
@@ -829,4 +1106,5 @@ application = webapp2.WSGIApplication([
                                           ('/PractiseIntro', PractiseIntro),
                                           ('/PractisePage', PractisePage),
                                           ('/TestIntro', TestIntro),
+                                          ('/TestPage', TestPage),
                                       ], config=config, debug=True)

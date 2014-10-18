@@ -27,6 +27,21 @@
         text-align: center;
     }
 
+    .button {
+        width: 150px;
+        height: 50px;
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: center;
+    }
+
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
 
 </style>
 
@@ -35,21 +50,39 @@
 <p>Tests</p>
 
 <p>&nbsp;</p>
+
 <p>{{ message }}</p>
+
 {% if user %}
     <p>
     <div class="form-group" style="text-align: center;">
         You can <a href="{{ logout_url }}">sign out</a>
     </div>
     </p>
-
+    <table id="resultTable">
+    <tr>
+        <th>Test Name</th>
+        <th>Attempts</th>
+        <th>End Date</th>
+    </tr>
     {% for test in tests %}
-
-        <b>{{ test.testName }}</b>
-
+        <tr>
+            <td>
+                <form action="/TestPage" method="post">
+                    <input id="button" name="testChoice" type="submit" value="{{ test.testName }}">
+                </form>
+            </td>
+            <td>
+                {{ test.attempts }}
+            </td>
+            <td>
+                {{ test.endDate }}
+            </td>
+        </tr>
 
     {% endfor %}
 
+ </table>
 
 
 {% else %}

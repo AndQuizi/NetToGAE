@@ -24,6 +24,16 @@ class PractiseSession(ndb.Model):
     questionNumber = ndb.IntegerProperty(required=True)
 
 
+#A model used to keep track of the users current test session
+#Almost the same as PractiseSession, just one property difference
+class TestSession(ndb.Model):
+    sessionID = ndb.StringProperty(required=True)
+    totalQuestions = ndb.IntegerProperty(required=True)
+    wordStrings = ndb.StringProperty(repeated=True)
+    score = ndb.IntegerProperty(required=True)
+    currWord = ndb.StringProperty(required=True)
+    questionNumber = ndb.IntegerProperty(required=True)
+
 #Language types
 class Language(ndb.Model):
     languageName = ndb.StringProperty(required=True)
@@ -344,3 +354,11 @@ class Tests(ndb.Model):
     endDate = ndb.DateTimeProperty(required=True)
     attempts = ndb.IntegerProperty(default=3)
     questions = ndb.StringProperty(repeated=True)
+
+
+class StudentTests(ndb.Model):
+    studentID = ndb.StringProperty(required=True)
+    testName = ndb.StringProperty(required=True)
+    language = ndb.StringProperty(required=True)
+    attempts = ndb.IntegerProperty(default=0)
+    score = ndb.IntegerProperty(default=0)
