@@ -25,7 +25,6 @@ class PractiseSession(ndb.Model):
 
 
 #A model used to keep track of the users current test session
-#Almost the same as PractiseSession, just one property difference
 class TestSession(ndb.Model):
     sessionID = ndb.StringProperty(required=True)
     totalQuestions = ndb.IntegerProperty(required=True)
@@ -33,6 +32,7 @@ class TestSession(ndb.Model):
     score = ndb.IntegerProperty(required=True)
     currWord = ndb.StringProperty(required=True)
     questionNumber = ndb.IntegerProperty(required=True)
+    testName = ndb.StringProperty(required=True)
 
 #Language types
 class Language(ndb.Model):

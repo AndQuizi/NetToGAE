@@ -60,29 +60,30 @@
     </div>
     </p>
     <table id="resultTable">
-    <tr>
-        <th>Test Name</th>
-        <th>Attempts</th>
-        <th>End Date</th>
-    </tr>
-    {% for test in tests %}
         <tr>
-            <td>
-                <form action="/TestPage" method="post">
-                    <input id="button" name="testChoice" type="submit" value="{{ test.testName }}">
-                </form>
-            </td>
-            <td>
-                {{ test.attempts }}
-            </td>
-            <td>
-                {{ test.endDate }}
-            </td>
+            <th>Test Name</th>
+            <th>Attempts</th>
+            <th>End Date</th>
         </tr>
+        {% for test in tests %}
 
-    {% endfor %}
+            <tr>
+                <td>
+                    <form action="/TestPage" method="post">
+                        <input id="button" name="testChoice" type="submit" value="{{ test.testName }}">
+                    </form>
+                </td>
+                <td>
+                    {{ attempts.pop() }}/{{ test.attempts }}
+                </td>
+                <td>
+                    {{ test.endDate }}
+                </td>
+            </tr>
 
- </table>
+        {% endfor %}
+
+    </table>
 
 
 {% else %}

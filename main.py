@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import os,sys
+import os, sys
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'NetToGAE.settings'
 import random
 import string
@@ -10,9 +11,11 @@ import jinja2
 import webapp2
 from google.appengine.api import users
 from django.conf import settings
-from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests, TestSession
+from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests, TestSession, \
+    StudentTests
 import datetime
 import time
+
 settings._target = None
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -20,7 +23,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-#Need this for using session keys
+# Need this for using session keys
 # TODO: Change this later
 config = {}
 config['webapp2_extras.sessions'] = {
@@ -29,7 +32,7 @@ config['webapp2_extras.sessions'] = {
 
 
 
-#Accepts string and returns a number representing difficulty
+# Accepts string and returns a number representing difficulty
 def get_difficulty_rating(diff):
     if diff == "Beginner":
         diff = 1
@@ -67,21 +70,25 @@ def translate_list(wordList, lang):
         returnList.append(word_query.translatedWord)
     return returnList
 
+
 #Called on first practise question
 #Returns words to be used as answer choices
 #Does not return the current word
 def get_choices(language, diff, currWord):
     diffNum = get_difficulty_rating(diff)
-    choice_query = Word.query(Word.languageName == language, Word.difficulty == diffNum, Word.translatedWord != currWord.translatedWord)
+    choice_query = Word.query(Word.languageName == language, Word.difficulty == diffNum,
+                              Word.translatedWord != currWord.translatedWord)
     words = choice_query.fetch()
     shuffle(words)
     return words
+
 
 #Called on first test question
 #Returns words to be used as answer choices
 #Does not return the current word
 def get_test_choices(language, diff, currWord):
-    choice_query = Word.query(Word.languageName == language, Word.difficulty == diff, Word.translatedWord != currWord.translatedWord)
+    choice_query = Word.query(Word.languageName == language, Word.difficulty == diff,
+                              Word.translatedWord != currWord.translatedWord)
     words = choice_query.fetch()
     shuffle(words)
     return words
@@ -171,7 +178,6 @@ class French(webapp2.RequestHandler):
 
 #About page
 class About(webapp2.RequestHandler):
-
     def get(self):
         template = JINJA_ENVIRONMENT.get_template('templates/About.html')
         self.response.write(template.render())
@@ -220,12 +226,12 @@ class PractiseIntro(webapp2.RequestHandler):
 
 
 #Practise page, includes practise results
-#Uses POST not GET
+#Uses POST
 #This class encompasses all of practise mode
 #TODO: BUG: There is a .pop() bug where the Practise Session can't get results from the datastore
 #TODO: This is due to either form double clicking (this may screw up datastore consistency)
 #TODO: Or because I am deleting a Practise Session entity then immediately adding a new one and then reloading the page
-#TODO: It is a hard bug to reproduce sometimes. It happens once in a blue moon.
+#TODO: It is a hard bug to reproduce sometimes. I havn't seen it in a while.
 class PractisePage(webapp2.RequestHandler):
     #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
     #Removing either of these functions will cause runtime a error
@@ -318,7 +324,8 @@ class PractisePage(webapp2.RequestHandler):
                 score = practise_state.score
 
                 #Get user results
-                user_result_query = UserResults.query(UserResults.sessionID == session_key).order(UserResults.questionNumber)
+                user_result_query = UserResults.query(UserResults.sessionID == session_key).order(
+                    UserResults.questionNumber)
                 results = user_result_query.fetch()
 
                 #Display results
@@ -441,7 +448,8 @@ class PractisePage(webapp2.RequestHandler):
                     translation = current_word.translatedWord
 
                     #Delete previous entries of current session
-                    practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
+                    practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(
+                        keys_only=True)
                     ndb.delete_multi(practise_query)
 
                     #Save new current state of practise session
@@ -478,7 +486,8 @@ class PractisePage(webapp2.RequestHandler):
                 #If the question queue is empty, display result page
                 else:
                     #Get user results, order by question number
-                    user_result_query = UserResults.query(UserResults.sessionID == session_key).order(UserResults.questionNumber)
+                    user_result_query = UserResults.query(UserResults.sessionID == session_key).order(
+                        UserResults.questionNumber)
                     results = user_result_query.fetch()
 
                     #Values for template
@@ -487,13 +496,14 @@ class PractisePage(webapp2.RequestHandler):
                     template_values = {
                         'results': results,
                         'score': score,
-                        'questionNumber': question_number-1,
+                        'questionNumber': question_number - 1,
                         'answer': last_word,
                         'choice': choice,
                         'prevWord': prevWord,
                     }
                     #Deletes all practise sessions and user results saved in the datastore
-                    practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
+                    practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(
+                        keys_only=True)
                     ndb.delete_multi(practise_query)
 
                     result_query = UserResults.query(UserResults.sessionID == session_key).fetch(keys_only=True)
@@ -505,6 +515,7 @@ class PractisePage(webapp2.RequestHandler):
             else:
                 template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
                 self.response.write(template.render())
+
 
 #Test intro page, includes Course Register page
 #Checks if user is signed up for course and functions accordingly
@@ -536,10 +547,10 @@ class TestIntro(webapp2.RequestHandler):
             #If user is signed in
             if user:
                 template_values = {
-                            'language': lang,
-                            'user': user,
-                            'login_url': login_url,
-                            'logout_url': logout_url,
+                    'language': lang,
+                    'user': user,
+                    'login_url': login_url,
+                    'logout_url': logout_url,
                 }
                 query = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch()
 
@@ -571,6 +582,17 @@ class TestIntro(webapp2.RequestHandler):
                         if len(valid_tests) == 0:
                             no_tests_message = "There are no tests at this time."
 
+                        curr_attempts = []
+                        for test in valid_tests:
+                            student_test_query = StudentTests.query(StudentTests.testName == test.testName,
+                                                                    StudentTests.studentID == user.user_id(),
+                                                                    StudentTests.language == lang).fetch()
+                            if len(student_test_query) != 0:
+                                student_test = student_test_query.pop()
+                                curr_attempts.append(student_test.attempts)
+                            else:
+                                curr_attempts.append(0)
+
                         template_values = {
                             'language': lang,
                             'user': user,
@@ -578,6 +600,7 @@ class TestIntro(webapp2.RequestHandler):
                             'logout_url': logout_url,
                             'tests': valid_tests,
                             'message': no_tests_message,
+                            'attempts': curr_attempts,
                         }
 
                         template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
@@ -610,6 +633,17 @@ class TestIntro(webapp2.RequestHandler):
                         if len(valid_tests) == 0:
                             no_tests_message = "There are no tests at this time."
 
+                        curr_attempts = []
+                        for test in valid_tests:
+                            student_test_query = StudentTests.query(StudentTests.testName == test.testName,
+                                                                    StudentTests.studentID == user.user_id(),
+                                                                    StudentTests.language == lang).fetch()
+                            if len(student_test_query) != 0:
+                                student_test = student_test_query.pop()
+                                curr_attempts.append(student_test.attempts)
+                            else:
+                                curr_attempts.append(0)
+
                         template_values = {
                             'language': lang,
                             'user': user,
@@ -617,6 +651,7 @@ class TestIntro(webapp2.RequestHandler):
                             'logout_url': logout_url,
                             'tests': valid_tests,
                             'message': no_tests_message,
+                            'attempts': curr_attempts,
                         }
 
                         template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
@@ -693,6 +728,17 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
+                    curr_attempts = []
+                    for test in valid_tests:
+                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
+                                                                StudentTests.studentID == user.user_id(),
+                                                                StudentTests.language == lang).fetch()
+                        if len(student_test_query) != 0:
+                            student_test = student_test_query.pop()
+                            curr_attempts.append(student_test.attempts)
+                        else:
+                            curr_attempts.append(0)
+
                     template_values = {
                         'language': lang,
                         'user': user,
@@ -700,6 +746,7 @@ class TestIntro(webapp2.RequestHandler):
                         'logout_url': logout_url,
                         'tests': valid_tests,
                         'message': no_tests_message,
+                        'attempts': curr_attempts,
                     }
 
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
@@ -737,6 +784,17 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
+                    curr_attempts = []
+                    for test in valid_tests:
+                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
+                                                                StudentTests.studentID == user.user_id(),
+                                                                StudentTests.language == lang).fetch()
+                        if len(student_test_query) != 0:
+                            student_test = student_test_query.pop()
+                            curr_attempts.append(student_test.attempts)
+                        else:
+                            curr_attempts.append(0)
+
                     template_values = {
                         'language': lang,
                         'user': user,
@@ -744,6 +802,7 @@ class TestIntro(webapp2.RequestHandler):
                         'logout_url': logout_url,
                         'tests': valid_tests,
                         'message': no_tests_message,
+                        'attempts': curr_attempts,
                     }
 
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
@@ -786,6 +845,17 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
+                    curr_attempts = []
+                    for test in valid_tests:
+                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
+                                                                StudentTests.studentID == user.user_id(),
+                                                                StudentTests.language == lang).fetch()
+                        if len(student_test_query) != 0:
+                            student_test = student_test_query.pop()
+                            curr_attempts.append(student_test.attempts)
+                        else:
+                            curr_attempts.append(0)
+
                     template_values = {
                         'language': lang,
                         'user': user,
@@ -793,6 +863,7 @@ class TestIntro(webapp2.RequestHandler):
                         'logout_url': logout_url,
                         'tests': valid_tests,
                         'message': no_tests_message,
+                        'attempts': curr_attempts,
                     }
 
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
@@ -833,6 +904,16 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
+                    curr_attempts = []
+                    for test in valid_tests:
+                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
+                                                                StudentTests.studentID == user.user_id(),
+                                                                StudentTests.language == lang).fetch()
+                        if len(student_test_query) != 0:
+                            student_test = student_test_query.pop()
+                            curr_attempts.append(student_test.attempts)
+                        else:
+                            curr_attempts.append(0)
 
                     template_values = {
                         'language': lang,
@@ -841,6 +922,7 @@ class TestIntro(webapp2.RequestHandler):
                         'logout_url': logout_url,
                         'tests': valid_tests,
                         'message': no_tests_message,
+                        'attempts': curr_attempts,
                     }
 
                     template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
@@ -852,6 +934,9 @@ class TestIntro(webapp2.RequestHandler):
                     self.response.write(template.render(template_values))
 
 
+#Test page, includes test results
+#Uses POST
+#This class encompasses all of test mode
 class TestPage(webapp2.RequestHandler):
     #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
     #Removing either of these functions will cause runtime a error
@@ -872,7 +957,7 @@ class TestPage(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def post(self):
-         #Language for current practise session
+        #Language for current practise session
         lang = self.session.get('Language')
         user = users.get_current_user()
 
@@ -890,46 +975,82 @@ class TestPage(webapp2.RequestHandler):
             test_choice = self.request.get('testChoice')
             query = Tests.query(Tests.testName == test_choice, Tests.languageName == lang).fetch().pop()
 
-            #Get words/questions for chosen test
-            words = query.questions
-            shuffle(words)
-            question_length = len(words)
+            #Check is student didn't max their attempts
+            student_test_query = StudentTests.query(StudentTests.studentID == user.user_id(),
+                                                    StudentTests.testName == test_choice,
+                                                    StudentTests.language == lang).fetch()
+            can_take = True
 
-            words = translate_list(words, lang)
-            #Get first word
-            current_word = get_word_from_translation(words.pop()).pop()
+            #The student never took this test before
+            if len(student_test_query) == 0:
+                StudentTests(studentID=user.user_id(),
+                             testName=test_choice,
+                             language=lang,
+                             attempts=1,
+                             score=0).put()
 
-            #Save current session ID, difficulty, word queue, score, and current question
-            TestSession(sessionID=user.user_id(),
-                        totalQuestions=question_length,
-                        wordStrings=words,
-                        score=0,
-                        currWord=current_word.translatedWord,
-                        questionNumber=1).put()
+            #The student took this test before
+            #Check attempts and function accordingly
+            else:
+                student_test = student_test_query.pop()
+                current_attempts = student_test.attempts
 
-            #Get 3 other false answers of same difficulty
-            choices = get_test_choices(lang, current_word.difficulty, current_word)
+                #The user did not max out their attempts
+                if current_attempts < query.attempts:
+                    student_test.attempts += 1
+                    student_test.put()
 
-            #Randomize choices
-            choice_list = []
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(current_word)
-            shuffle(choice_list)
+                #The user maxed out their attempts
+                else:
+                    can_take = False
 
-            #Values for template
-            template_values = {
-                'currWord': current_word,
-                'choice1': choice_list.pop(),
-                'choice2': choice_list.pop(),
-                'choice3': choice_list.pop(),
-                'choice4': choice_list.pop(),
-                'score': score,
-                'max_questions': question_length,
-            }
-            template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
-            self.response.write(template.render(template_values))
+            #The user can take the test
+            if can_take:
+                #Get words/questions for chosen test
+                words = query.questions
+                shuffle(words)
+                question_length = len(words)
+
+                words = translate_list(words, lang)
+                #Get first word
+                current_word = get_word_from_translation(words.pop()).pop()
+
+                #Save current session ID, difficulty, word queue, score, and current question
+                TestSession(sessionID=user.user_id(),
+                            totalQuestions=question_length,
+                            wordStrings=words,
+                            score=0,
+                            currWord=current_word.translatedWord,
+                            questionNumber=1,
+                            testName=test_choice).put()
+
+                #Get 3 other false answers of same difficulty
+                choices = get_test_choices(lang, current_word.difficulty, current_word)
+
+                #Randomize choices
+                choice_list = []
+                choice_list.append(choices.pop())
+                choice_list.append(choices.pop())
+                choice_list.append(choices.pop())
+                choice_list.append(current_word)
+                shuffle(choice_list)
+
+                #Values for template
+                template_values = {
+                    'currWord': current_word,
+                    'choice1': choice_list.pop(),
+                    'choice2': choice_list.pop(),
+                    'choice3': choice_list.pop(),
+                    'choice4': choice_list.pop(),
+                    'score': score,
+                    'max_questions': question_length,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
+                self.response.write(template.render(template_values))
+
+            #User maxed their attempts
+            else:
+                self.response.write("Cannot take test. Attempts have been maxed.")
 
         #If the user clicks the Skip button
         #Skips current word and displays new one
@@ -949,6 +1070,7 @@ class TestPage(webapp2.RequestHandler):
             #Get more information on current session
             test_choice = test_state.totalQuestions
             question_number = test_state.questionNumber
+            test_name = test_state.testName
 
             #Get a new word for the next question
             current_word = get_word_from_translation(word_list.pop()).pop()
@@ -964,7 +1086,8 @@ class TestPage(webapp2.RequestHandler):
                         wordStrings=word_list,
                         score=score,
                         currWord=translation,
-                        questionNumber=question_number).put()
+                        questionNumber=question_number,
+                        testName=test_name).put()
 
             #Get 3 other false answers
             choices = get_test_choices(lang, current_word.difficulty, current_word)
@@ -1002,6 +1125,7 @@ class TestPage(webapp2.RequestHandler):
             if len(test_state) != 0:
                 test_state = test_state.pop()
                 test_choice = test_state.totalQuestions
+                test_name = test_state.testName
                 prevWord = test_state.currWord
                 question_number = test_state.questionNumber
                 score = test_state.score
@@ -1039,7 +1163,8 @@ class TestPage(webapp2.RequestHandler):
                                 wordStrings=word_list,
                                 score=score,
                                 currWord=translation,
-                                questionNumber=question_number).put()
+                                questionNumber=question_number,
+                                testName=test_name).put()
 
                     #Get 3 other false answers
                     choices = get_test_choices(lang, current_word.difficulty, current_word)
@@ -1068,7 +1193,8 @@ class TestPage(webapp2.RequestHandler):
                 #If the question queue is empty, display result page
                 else:
                     #Get user results, order by question number
-                    user_result_query = UserResults.query(UserResults.sessionID == user.user_id()).order(UserResults.questionNumber)
+                    user_result_query = UserResults.query(UserResults.sessionID == user.user_id()).order(
+                        UserResults.questionNumber)
                     results = user_result_query.fetch()
 
                     #Values for template
@@ -1077,11 +1203,23 @@ class TestPage(webapp2.RequestHandler):
                     template_values = {
                         'results': results,
                         'score': score,
-                        'questionNumber': question_number-1,
+                        'questionNumber': question_number - 1,
                         'answer': last_word,
                         'choice': choice,
                         'prevWord': prevWord,
                     }
+
+                    test_query = TestSession.query(TestSession.sessionID == user.user_id())
+                    test_state = test_query.fetch().pop()
+                    test_name = test_state.testName
+
+                    student_test_query = StudentTests.query(StudentTests.studentID == user.user_id(),
+                                                            StudentTests.testName == test_name,
+                                                            StudentTests.language == lang).fetch()
+                    student_test = student_test_query.pop()
+                    student_test.score = score
+                    student_test.put()
+
                     #Deletes all practise sessions and user results saved in the datastore
                     test_query = TestSession.query(TestSession.sessionID == user.user_id()).fetch(keys_only=True)
                     ndb.delete_multi(test_query)
@@ -1096,6 +1234,7 @@ class TestPage(webapp2.RequestHandler):
             else:
                 template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
                 self.response.write(template.render())
+
 
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
