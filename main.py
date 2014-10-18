@@ -271,13 +271,14 @@ class PractiseIntro(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
+#TODO: Both PractisePage and TestPage can use some refactoring
 #Practise page, includes practise results
 #Uses POST
 #This class encompasses all of practise mode
 #TODO: BUG: There is a .pop() bug where the Practise Session can't get results from the datastore
 #TODO: This is due to either form double clicking (this may screw up datastore consistency)
 #TODO: Or because I am deleting a Practise Session entity then immediately adding a new one and then reloading the page
-#TODO: It is a hard bug to reproduce sometimes. I havn't seen it in a while.
+#TODO: It is a hard bug to reproduce sometimes. I havn't seen it in a while (may be fixed?).
 class PractisePage(webapp2.RequestHandler):
     #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
     #Removing either of these functions will cause runtime a error
