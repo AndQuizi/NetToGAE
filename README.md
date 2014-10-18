@@ -15,6 +15,7 @@ Complete:
 
 TODO:
 -Unit tests for new models
+-Refactoring
 -Bug fixes
 -Admin mode
 -Error pages (404s)
