@@ -9,11 +9,12 @@ Complete:
 -Sessions
 -Practise mode 
 -Datastore
--Unit tests for current models
-
-TODO:
+-Some unit tests
 -User accounts
 -Test mode
+
+TODO:
+-Unit tests for new models
+-Bug fixes
 -Admin mode
--More unit tests
 -Error pages (404s)
