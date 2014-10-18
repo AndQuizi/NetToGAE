@@ -14,8 +14,11 @@
     <li><a href="/Contact">Contact</a></li>
     <li><a href="/Italian">Italian</a></li>
     <li><a href="/French">French</a></li>
-    <li><a href="#">Register</a></li>
-    <li><a href="#">Login</a></li>
+    {% if user %}
+        <li><a href="{{ logout_url }}">Logout</a></li>
+    {% else %}
+        <li><a href="{{ login_url }}">Login</a></li>
+    {% endif %}
 </ul>
 
 <style>

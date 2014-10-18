@@ -119,8 +119,16 @@ class MainPage(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+        }
         template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
-        self.response.write(template.render())
+        self.response.write(template.render(template_values))
 
 
 #Italian Page
@@ -145,9 +153,17 @@ class Italian(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+        }
         self.session['Language'] = 'Italian'
         template = JINJA_ENVIRONMENT.get_template('templates/Italian.html')
-        self.response.write(template.render())
+        self.response.write(template.render(template_values))
 
 
 #French Page
@@ -171,23 +187,47 @@ class French(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+        }
         self.session['Language'] = 'French'
         template = JINJA_ENVIRONMENT.get_template('templates/French.html')
-        self.response.write(template.render())
+        self.response.write(template.render(template_values))
 
 
 #About page
 class About(webapp2.RequestHandler):
     def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+        }
         template = JINJA_ENVIRONMENT.get_template('templates/About.html')
-        self.response.write(template.render())
+        self.response.write(template.render(template_values))
 
 
 #Contact page
 class Contact(webapp2.RequestHandler):
     def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+        }
         template = JINJA_ENVIRONMENT.get_template('templates/Contact.html')
-        self.response.write(template.render())
+        self.response.write(template.render(template_values))
 
 
 #Practise intro page
@@ -212,6 +252,9 @@ class PractiseIntro(webapp2.RequestHandler):
 
     def get(self):
         lang = self.session.get('Language')
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
 
         #used to identify the current practise session
         #this is a workaround to a problem relating to session keys
@@ -220,6 +263,9 @@ class PractiseIntro(webapp2.RequestHandler):
 
         template_values = {
             'language': lang,
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
         }
         template = JINJA_ENVIRONMENT.get_template('templates/PractiseIntro.html')
         self.response.write(template.render(template_values))
@@ -251,9 +297,37 @@ class PractisePage(webapp2.RequestHandler):
         # Returns a session using the default cookie key.
         return self.session_store.get_session()
 
+    #This is called when the user signs in during a practise session
+    def get(self):
+        lang = self.session.get('Language')
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        if lang:
+            template_values = {
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
+                'language': lang,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/PractiseIntro.html')
+            self.response.write(template.render(template_values))
+        else:
+            template_values = {
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
+            self.response.write(template.render(template_values))
+
     def post(self):
         #Language for current practise session
         lang = self.session.get('Language')
+
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
 
         #Session key used to identify practice session
         session_key = self.session.get('practiseKey')
@@ -309,6 +383,9 @@ class PractisePage(webapp2.RequestHandler):
                 'choice3': choice_list.pop(),
                 'choice4': choice_list.pop(),
                 'score': score,
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
             }
             template = JINJA_ENVIRONMENT.get_template('templates/PractisePage.html')
             self.response.write(template.render(template_values))
@@ -333,6 +410,9 @@ class PractisePage(webapp2.RequestHandler):
                     'results': results,
                     'score': score,
                     'questionNumber': len(results),
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
                 }
                 #Delete previous entries of this practise session
                 practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(keys_only=True)
@@ -403,6 +483,9 @@ class PractisePage(webapp2.RequestHandler):
                 'choice3': choice_list.pop(),
                 'choice4': choice_list.pop(),
                 'score': score,
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
             }
             template = JINJA_ENVIRONMENT.get_template('templates/PractisePage.html')
             self.response.write(template.render(template_values))
@@ -479,6 +562,9 @@ class PractisePage(webapp2.RequestHandler):
                         'choice3': choice_list.pop(),
                         'choice4': choice_list.pop(),
                         'score': score,
+                        "user": user,
+                        "login_url": login_url,
+                        "logout_url": logout_url,
                     }
                     template = JINJA_ENVIRONMENT.get_template('templates/PractisePage.html')
                     self.response.write(template.render(template_values))
@@ -500,6 +586,9 @@ class PractisePage(webapp2.RequestHandler):
                         'answer': last_word,
                         'choice': choice,
                         'prevWord': prevWord,
+                        "user": user,
+                        "login_url": login_url,
+                        "logout_url": logout_url,
                     }
                     #Deletes all practise sessions and user results saved in the datastore
                     practise_query = PractiseSession.query(PractiseSession.sessionID == session_key).fetch(
@@ -960,7 +1049,8 @@ class TestPage(webapp2.RequestHandler):
         #Language for current practise session
         lang = self.session.get('Language')
         user = users.get_current_user()
-
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
         current_word = None
         score = 0
 
@@ -1044,6 +1134,9 @@ class TestPage(webapp2.RequestHandler):
                     'choice4': choice_list.pop(),
                     'score': score,
                     'max_questions': question_length,
+                    'user': user,
+                    'login_url': login_url,
+                    'logout_url': logout_url,
                 }
                 template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
                 self.response.write(template.render(template_values))
@@ -1109,6 +1202,9 @@ class TestPage(webapp2.RequestHandler):
                 'choice4': choice_list.pop(),
                 'score': score,
                 'max_questions': test_choice,
+                'user': user,
+                'login_url': login_url,
+                'logout_url': logout_url,
             }
             template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
             self.response.write(template.render(template_values))
@@ -1186,6 +1282,9 @@ class TestPage(webapp2.RequestHandler):
                         'choice4': choice_list.pop(),
                         'score': score,
                         'max_questions': test_choice,
+                        'user': user,
+                        'login_url': login_url,
+                        'logout_url': logout_url,
                     }
                     template = JINJA_ENVIRONMENT.get_template('templates/TestPage.html')
                     self.response.write(template.render(template_values))
@@ -1207,6 +1306,9 @@ class TestPage(webapp2.RequestHandler):
                         'answer': last_word,
                         'choice': choice,
                         'prevWord': prevWord,
+                        'user': user,
+                        'login_url': login_url,
+                        'logout_url': logout_url,
                     }
 
                     test_query = TestSession.query(TestSession.sessionID == user.user_id())
