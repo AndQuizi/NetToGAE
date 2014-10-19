@@ -44,17 +44,17 @@ def get_difficulty_rating(diff):
 
 
 # Called on first practise question
-#Returns all words to be used in that practise instance
+# Returns all words to be used in that practise instance
 def get_words(language, diff):
     diffNum = get_difficulty_rating(diff)
-    #Get words from datastore with chosen language and difficulty
+    # Get words from datastore with chosen language and difficulty
     word_query = Word.query(Word.languageName == language, Word.difficulty == diffNum)
     #TODO: Only fetch about 20 when more words are added to DB
     words = word_query.fetch()
     return words
 
 
-#Returns a word based on its translation
+# Returns a word based on its translation
 def get_word_from_translation(translation):
     word_query = Word.query(Word.translatedWord == translation)
     words = word_query.fetch(1)
@@ -118,6 +118,7 @@ def get_test_attempts(valid_tests, user, lang):
         else:
             curr_attempts.append(0)
     return curr_attempts
+
 
 #http://stackoverflow.com/questions/2257441/random-string-generation-with-upper-case-letters-and-digits-in-python
 #Returns a random string of size 12
@@ -1295,7 +1296,7 @@ class TestPage(webapp2.RequestHandler):
                 self.response.write(template.render())
 
 
-class AdminPage(webapp2.RequestHandler):
+class TeachersHub(webapp2.RequestHandler):
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -1315,12 +1316,103 @@ class AdminPage(webapp2.RequestHandler):
         user = users.get_current_user()
         if user:
             if users.is_current_user_admin():
-                self.response.write("This is admin page")
+                login_url = users.create_login_url(self.request.path)
+                logout_url = users.create_logout_url(self.request.path)
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/TeachersHub.html')
+                self.response.write(template.render(template_values))
+
             else:
                 self.response.write("Request Denied")
         else:
             self.response.write("Request Denied")
 
+
+#Admin page to add words to datastore
+class WordPage(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            if users.is_current_user_admin():
+                login_url = users.create_login_url(self.request.path)
+                logout_url = users.create_logout_url(self.request.path)
+                languages = Language.query().fetch()
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "languages": languages,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/WordPage.html')
+                self.response.write(template.render(template_values))
+
+            else:
+                self.response.write("Request Denied")
+        else:
+            self.response.write("Request Denied")
+
+    #Teacher attempts to add word to datastore
+    #TODO: Input checks such as escape strings. I am not sure how to do that here.
+    #I am also not sure now to do a try-catch block with ndb
+    def post(self):
+        user = users.get_current_user()
+        language = self.request.get('LanguageName')
+        englishWord = self.request.get('EnglishWord')
+        translation = self.request.get('Translation')
+        difficulty_word = self.request.get('Difficulty')
+        difficulty = get_difficulty_rating(difficulty_word)
+        #Image. I am skipping this for now because I do not want to store my image in a model with Blobstore.
+        #Instead I want to add the image to the images folder. If this is not possible then I will use Blobstore as TODO
+
+        #Check if word already exists for this language
+        word_query = Word.query(Word.englishWord == englishWord, Word.languageName == language).fetch()
+        message = ""
+        #If word does not already exist
+        if len(word_query) == 0:
+            Word(englishWord=englishWord,
+                 imagePath='default.jpg',
+                 languageName=language,
+                 translatedWord=translation,
+                 difficulty=difficulty).put()
+
+            #I would like a try-catch block or something here
+            message = "Added word successfully."
+
+        #This word already exists for this language
+        else:
+            message = "Error: Word already exists."
+
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        languages = Language.query().fetch()
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+            "languages": languages,
+            "message": message,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/WordPage.html')
+        self.response.write(template.render(template_values))
 
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
@@ -1332,5 +1424,6 @@ application = webapp2.WSGIApplication([
                                           ('/PractisePage', PractisePage),
                                           ('/TestIntro', TestIntro),
                                           ('/TestPage', TestPage),
-                                          ('/AdminPage', AdminPage),
+                                          ('/TeachersHub', TeachersHub),
+                                          ('/WordPage', WordPage),
                                       ], config=config, debug=True)

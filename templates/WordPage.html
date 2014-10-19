@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
+    <title>Teachers Hub - Flash Language</title>
+</head>
+<body>
+
+<!--navigation bar-->
+<ul id="nav">
+    <li><a href="/">Flash Language</a></li>
+    <li><a href="/About">About</a></li>
+    <li><a href="/Contact">Contact</a></li>
+    <li><a href="/Italian">Italian</a></li>
+    <li><a href="/French">French</a></li>
+    {% if user %}
+        <li><a href="{{ logout_url }}">Logout</a></li>
+    {% else %}
+        <li><a href="{{ login_url }}">Login</a></li>
+    {% endif %}
+</ul>
+<style>
+
+    h1, h2, h3 {
+        text-align: center;
+    }
+
+    p {
+        text-align: center;
+    }
+    .button {
+            width: 150px;
+            height: 50px;
+        }
+
+
+</style>
+
+<h1>Teachers Hub</h1>
+<h3>Add Word</h3>
+<p>&nbsp;</p>
+<p>{{ message }}</p>
+<form method="post" enctype="multipart/form-data">
+
+<b>Language</b>
+<br>
+<select name="LanguageName">
+  {% for language in languages %}
+      <option value="{{ language.languageName }}">{{ language.languageName }}</option>
+  {% endfor %}
+</select>
+<p>&nbsp;</p>
+
+<b>English Word (case sensitive)</b>
+<br>
+<input type="text" name="EnglishWord" required>
+<p>&nbsp;</p>
+
+<b>Translation</b>
+<br>
+<input type="text" name="Translation" required>
+<p>&nbsp;</p>
+
+<b>Difficulty</b>
+<br>
+<select name="Difficulty">
+  <option value="Beginner">Beginner</option>
+  <option value="Intermediate">Intermediate</option>
+  <option value="Advanced">Advanced</option>
+</select>
+<p>&nbsp;</p>
+
+<b>Image (optional)</b>
+<br>
+<input id="fileupload" name="imageFile" type="file" />
+<p>&nbsp;</p>
+<input ID="button" type="submit" value="Add Word">
+</form>
+
+
+<!--footer-->
+<hr/>
+<footer>
+    <p id="footer">&copy; 2014 - Flash Language</p>
+</footer>
+
+
+</body>
+</html>

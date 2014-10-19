@@ -3,7 +3,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
-    <title>Practise - Flash Language</title>
+    <title>Teachers Hub - Flash Language</title>
 </head>
 <body>
 
@@ -20,9 +20,9 @@
         <li><a href="{{ login_url }}">Login</a></li>
     {% endif %}
 </ul>
-
 <style>
-    h1 {
+
+    h1, h2 {
         text-align: center;
     }
 
@@ -33,28 +33,34 @@
 
 </style>
 
-<h1>{{ language }}</h1>
-
-<p>Practise</p>
+<h1>Teachers Hub</h1>
 
 <p>&nbsp;</p>
 
 <div class="form-group" style="text-align: center;">
 
-    <form action="/PractisePage" method="post">
-        <input id="button" name="diffChoice" type="submit" value="Beginner">
+    <form action="/WordPage" method="get">
+        <input id="button" name="addWord" type="submit" value="Add Word">
     </form>
     <p>&nbsp;</p>
 
-    <form action="/PractisePage" method="post">
-        <input id="button" name="diffChoice" type="submit" value="Intermediate">
+    <form action="/ManageTests" method="get">
+        <input id="button" name="manageTests" type="submit" value="Manage Tests">
     </form>
     <p>&nbsp;</p>
 
-    <form action="/PractisePage" method="post">
-        <input id="button" name="diffChoice" type="submit" value="Advanced">
+    <form action="/ExtractMarks" method="get">
+        <input id="button" name="extractMarks" type="submit" value="Extract Marks">
     </form>
+    <p>&nbsp;</p>
+
+    <form action="/CourseCode" method="get">
+        <input id="button" name="setCourseCode" type="submit" value="Set Course Code">
+    </form>
+
 </div>
+
+
 <!--footer-->
 <hr/>
 <footer>
