@@ -43,7 +43,7 @@ def get_difficulty_rating(diff):
     return diff
 
 
-#Called on first practise question
+# Called on first practise question
 #Returns all words to be used in that practise instance
 def get_words(language, diff):
     diffNum = get_difficulty_rating(diff)
@@ -93,6 +93,31 @@ def get_test_choices(language, diff, currWord):
     shuffle(words)
     return words
 
+
+#Randomize list of answers/choices
+def randomize_choices(choices, current_word):
+    choice_list = []
+    choice_list.append(choices.pop())
+    choice_list.append(choices.pop())
+    choice_list.append(choices.pop())
+    choice_list.append(current_word)
+    shuffle(choice_list)
+    return choice_list
+
+
+#Returns students attempts for each test
+def get_test_attempts(valid_tests, user, lang):
+    curr_attempts = []
+    for test in valid_tests:
+        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
+                                                StudentTests.studentID == user.user_id(),
+                                                StudentTests.language == lang).fetch()
+        if len(student_test_query) != 0:
+            student_test = student_test_query.pop()
+            curr_attempts.append(student_test.attempts)
+        else:
+            curr_attempts.append(0)
+    return curr_attempts
 
 #http://stackoverflow.com/questions/2257441/random-string-generation-with-upper-case-letters-and-digits-in-python
 #Returns a random string of size 12
@@ -299,6 +324,8 @@ class PractisePage(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     #This is called when the user signs in during a practise session
+    #Signs the user in and redirects to practise intro page
+    #Or default page their session key ran out
     def get(self):
         lang = self.session.get('Language')
         user = users.get_current_user()
@@ -369,12 +396,7 @@ class PractisePage(webapp2.RequestHandler):
             choices = get_choices(lang, diff, current_word)
 
             #Randomize choices
-            choice_list = []
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(current_word)
-            shuffle(choice_list)
+            choice_list = randomize_choices(choices, current_word)
 
             #Values for template
             template_values = {
@@ -469,12 +491,7 @@ class PractisePage(webapp2.RequestHandler):
             choices = get_choices(lang, diff, current_word)
 
             #Randomize choices
-            choice_list = []
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(current_word)
-            shuffle(choice_list)
+            choice_list = randomize_choices(choices, current_word)
 
             #Values for template
             template_values = {
@@ -548,12 +565,7 @@ class PractisePage(webapp2.RequestHandler):
                     choices = get_choices(lang, diff, current_word)
 
                     #Randomize choices
-                    choice_list = []
-                    choice_list.append(choices.pop())
-                    choice_list.append(choices.pop())
-                    choice_list.append(choices.pop())
-                    choice_list.append(current_word)
-                    shuffle(choice_list)
+                    choice_list = randomize_choices(choices, current_word)
 
                     #Values for template
                     template_values = {
@@ -672,16 +684,8 @@ class TestIntro(webapp2.RequestHandler):
                         if len(valid_tests) == 0:
                             no_tests_message = "There are no tests at this time."
 
-                        curr_attempts = []
-                        for test in valid_tests:
-                            student_test_query = StudentTests.query(StudentTests.testName == test.testName,
-                                                                    StudentTests.studentID == user.user_id(),
-                                                                    StudentTests.language == lang).fetch()
-                            if len(student_test_query) != 0:
-                                student_test = student_test_query.pop()
-                                curr_attempts.append(student_test.attempts)
-                            else:
-                                curr_attempts.append(0)
+                        #Get students attempt count for each test
+                        curr_attempts = get_test_attempts(valid_tests, user, lang)
 
                         template_values = {
                             'language': lang,
@@ -723,16 +727,8 @@ class TestIntro(webapp2.RequestHandler):
                         if len(valid_tests) == 0:
                             no_tests_message = "There are no tests at this time."
 
-                        curr_attempts = []
-                        for test in valid_tests:
-                            student_test_query = StudentTests.query(StudentTests.testName == test.testName,
-                                                                    StudentTests.studentID == user.user_id(),
-                                                                    StudentTests.language == lang).fetch()
-                            if len(student_test_query) != 0:
-                                student_test = student_test_query.pop()
-                                curr_attempts.append(student_test.attempts)
-                            else:
-                                curr_attempts.append(0)
+                        #Get students attempt count for each test
+                        curr_attempts = get_test_attempts(valid_tests, user, lang)
 
                         template_values = {
                             'language': lang,
@@ -818,16 +814,8 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
-                    curr_attempts = []
-                    for test in valid_tests:
-                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
-                                                                StudentTests.studentID == user.user_id(),
-                                                                StudentTests.language == lang).fetch()
-                        if len(student_test_query) != 0:
-                            student_test = student_test_query.pop()
-                            curr_attempts.append(student_test.attempts)
-                        else:
-                            curr_attempts.append(0)
+                    #Get students attempt count for each test
+                    curr_attempts = get_test_attempts(valid_tests, user, lang)
 
                     template_values = {
                         'language': lang,
@@ -874,16 +862,8 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
-                    curr_attempts = []
-                    for test in valid_tests:
-                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
-                                                                StudentTests.studentID == user.user_id(),
-                                                                StudentTests.language == lang).fetch()
-                        if len(student_test_query) != 0:
-                            student_test = student_test_query.pop()
-                            curr_attempts.append(student_test.attempts)
-                        else:
-                            curr_attempts.append(0)
+                    #Get students attempt count for each test
+                    curr_attempts = get_test_attempts(valid_tests, user, lang)
 
                     template_values = {
                         'language': lang,
@@ -935,16 +915,8 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
-                    curr_attempts = []
-                    for test in valid_tests:
-                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
-                                                                StudentTests.studentID == user.user_id(),
-                                                                StudentTests.language == lang).fetch()
-                        if len(student_test_query) != 0:
-                            student_test = student_test_query.pop()
-                            curr_attempts.append(student_test.attempts)
-                        else:
-                            curr_attempts.append(0)
+                    #Get students attempt count for each test
+                    curr_attempts = get_test_attempts(valid_tests, user, lang)
 
                     template_values = {
                         'language': lang,
@@ -994,16 +966,8 @@ class TestIntro(webapp2.RequestHandler):
                     if len(valid_tests) == 0:
                         no_tests_message = "There are no tests at this time."
 
-                    curr_attempts = []
-                    for test in valid_tests:
-                        student_test_query = StudentTests.query(StudentTests.testName == test.testName,
-                                                                StudentTests.studentID == user.user_id(),
-                                                                StudentTests.language == lang).fetch()
-                        if len(student_test_query) != 0:
-                            student_test = student_test_query.pop()
-                            curr_attempts.append(student_test.attempts)
-                        else:
-                            curr_attempts.append(0)
+                    #Get students attempt count for each test
+                    curr_attempts = get_test_attempts(valid_tests, user, lang)
 
                     template_values = {
                         'language': lang,
@@ -1119,12 +1083,7 @@ class TestPage(webapp2.RequestHandler):
                 choices = get_test_choices(lang, current_word.difficulty, current_word)
 
                 #Randomize choices
-                choice_list = []
-                choice_list.append(choices.pop())
-                choice_list.append(choices.pop())
-                choice_list.append(choices.pop())
-                choice_list.append(current_word)
-                shuffle(choice_list)
+                choice_list = randomize_choices(choices, current_word)
 
                 #Values for template
                 template_values = {
@@ -1187,12 +1146,7 @@ class TestPage(webapp2.RequestHandler):
             choices = get_test_choices(lang, current_word.difficulty, current_word)
 
             #Randomize choices
-            choice_list = []
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(choices.pop())
-            choice_list.append(current_word)
-            shuffle(choice_list)
+            choice_list = randomize_choices(choices, current_word)
 
             #Values for template
             template_values = {
@@ -1219,11 +1173,16 @@ class TestPage(webapp2.RequestHandler):
             #Get information on current session
             test_query = TestSession.query(TestSession.sessionID == user.user_id())
             test_state = test_query.fetch()
+
             if len(test_state) != 0:
+
+                #Get current state of test session
                 test_state = test_state.pop()
                 test_choice = test_state.totalQuestions
+
                 test_name = test_state.testName
                 prevWord = test_state.currWord
+
                 question_number = test_state.questionNumber
                 score = test_state.score
 
@@ -1267,12 +1226,7 @@ class TestPage(webapp2.RequestHandler):
                     choices = get_test_choices(lang, current_word.difficulty, current_word)
 
                     #Randomize choices
-                    choice_list = []
-                    choice_list.append(choices.pop())
-                    choice_list.append(choices.pop())
-                    choice_list.append(choices.pop())
-                    choice_list.append(current_word)
-                    shuffle(choice_list)
+                    choice_list = randomize_choices(choices, current_word)
 
                     #Values for template
                     template_values = {
@@ -1312,10 +1266,12 @@ class TestPage(webapp2.RequestHandler):
                         'logout_url': logout_url,
                     }
 
+                    #Get current test information
                     test_query = TestSession.query(TestSession.sessionID == user.user_id())
                     test_state = test_query.fetch().pop()
                     test_name = test_state.testName
 
+                    #Save students score
                     student_test_query = StudentTests.query(StudentTests.studentID == user.user_id(),
                                                             StudentTests.testName == test_name,
                                                             StudentTests.language == lang).fetch()
