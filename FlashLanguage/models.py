@@ -24,7 +24,7 @@ class PractiseSession(ndb.Model):
     questionNumber = ndb.IntegerProperty(required=True)
 
 
-#A model used to keep track of the users current test session
+#A model used to keep track of the users current test session. Similar to PractiseSession
 class TestSession(ndb.Model):
     sessionID = ndb.StringProperty(required=True)
     totalQuestions = ndb.IntegerProperty(required=True)

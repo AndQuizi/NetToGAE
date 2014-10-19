@@ -1339,6 +1339,33 @@ class TestPage(webapp2.RequestHandler):
                 self.response.write(template.render())
 
 
+class AdminPage(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            if users.is_current_user_admin():
+                self.response.write("This is admin page")
+            else:
+                self.response.write("Request Denied")
+        else:
+            self.response.write("Request Denied")
+
+
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
                                           ('/Italian', Italian),
@@ -1349,4 +1376,5 @@ application = webapp2.WSGIApplication([
                                           ('/PractisePage', PractisePage),
                                           ('/TestIntro', TestIntro),
                                           ('/TestPage', TestPage),
+                                          ('/AdminPage', AdminPage),
                                       ], config=config, debug=True)
