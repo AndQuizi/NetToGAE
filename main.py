@@ -1404,6 +1404,7 @@ class AddTestWord(webapp2.RequestHandler):
         login_url = users.create_login_url(self.request.path)
         logout_url = users.create_logout_url(self.request.path)
 
+        #Ff the user wants to add another word
         if self.request.get('EnglishWord'):
             englishWord = self.request.get('EnglishWord')
             test_helper = CreateTestHelper.query(CreateTestHelper.adminID == user.user_id()).fetch().pop()
@@ -1449,11 +1450,13 @@ class AddTestWord(webapp2.RequestHandler):
                 template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
                 self.response.write(template.render(template_values))
 
+        #If user is done making this test
         elif self.request.get('completeTest'):
             test_helper = CreateTestHelper.query(CreateTestHelper.adminID == user.user_id()).fetch().pop()
 
+            #Make sure test has at least one question
             if len(test_helper.questions) != 0:
-
+                #Create test
                 Tests(languageName=test_helper.languageName,
                       testName=test_helper.testName,
                       startDate=test_helper.startDate,
@@ -1484,10 +1487,6 @@ class AddTestWord(webapp2.RequestHandler):
 
                 template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
                 self.response.write(template.render(template_values))
-
-
-        #template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
-        #self.response.write(template.render(template_values))
 
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
