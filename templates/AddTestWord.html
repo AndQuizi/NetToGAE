@@ -33,6 +33,10 @@
             width: 150px;
             height: 50px;
         }
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
 
 
 </style>
@@ -43,8 +47,8 @@
 <p>{{ message }}</p>
 
 <b>Finish and Create</b>
-<form>
-<input ID="button" type="submit" value="Complete">
+<form method="post" action="/AddTestWord">
+<input ID="button" name="completeTest" type="submit" value="Complete">
 </form>
 
 <p>&nbsp;</p>
@@ -54,6 +58,24 @@
 <br>
 <input ID="button" type="submit" value="Add">
 </form>
+<table id="resultTable">
+        <tr>
+            <th>English Word</th>
+            <th>Translation</th>
+        </tr>
+
+    {% for word in word_list %}
+        <tr>
+         <td>
+                    {{ word }}
+                </td>
+        <td>
+                    {{ translated_list.pop() }}
+                </td>
+        </tr>
+ {% endfor %}
+
+    </table>
 
 <!--footer-->
 <hr/>

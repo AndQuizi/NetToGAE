@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os, sys
-
 os.environ['DJANGO_SETTINGS_MODULE'] = 'NetToGAE.settings'
 import random
 import string
@@ -12,7 +11,7 @@ import webapp2
 from google.appengine.api import users
 from django.conf import settings
 from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests, TestSession, \
-    StudentTests
+    StudentTests, CreateTestHelper
 import datetime
 import time
 
@@ -662,7 +661,7 @@ class TestIntro(webapp2.RequestHandler):
                     template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
                     self.response.write(template.render(template_values))
 
-                #If the user is signing up for French
+                #If user has signed up for a course before, check which one
                 else:
                     registered = False
                     if lang == "French":
@@ -674,8 +673,6 @@ class TestIntro(webapp2.RequestHandler):
 
                     #The user is signed up
                     if registered:
-                        testKey = id_generator()
-                        self.session['testKey'] = testKey
 
                         #Get current time
                         current_date = datetime.datetime.now()
@@ -748,13 +745,15 @@ class TestIntro(webapp2.RequestHandler):
         }
 
         #Get course code
-
         course_code = Language.query(Language.languageName == lang).fetch().pop().courseCode
 
+        #If user inputted code is correct
         if code == course_code:
 
             #Get current student courses
             query = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch()
+
+            #The user never signed up for a course before
             if len(query) == 0:
                 if lang == "French":
                     StudentCourses(studentID=user.user_id(),
@@ -762,6 +761,9 @@ class TestIntro(webapp2.RequestHandler):
                 else:
                     StudentCourses(studentID=user.user_id(),
                                    italian=True).put()
+
+            #The user has signed up for a course before
+            #In this case edit user StudentCourse entity
             else:
                 query = query.pop()
                 if lang == "French":
@@ -769,9 +771,6 @@ class TestIntro(webapp2.RequestHandler):
                 else:
                     query.italian = True
                 query.put()
-
-            testKey = id_generator()
-            self.session['testKey'] = testKey
 
             #Get current time
             current_date = datetime.datetime.now()
@@ -1320,30 +1319,68 @@ class CreateTest(webapp2.RequestHandler):
             self.response.write("Request Denied")
 
     #The user submitted the first half of the form
-    #TODO: Check if test name already exists
     def post(self):
         user = users.get_current_user()
         login_url = users.create_login_url(self.request.path)
         logout_url = users.create_logout_url(self.request.path)
 
+        query = CreateTestHelper.query(CreateTestHelper.adminID == user.user_id()).fetch(keys_only=True)
+        ndb.delete_multi(query)
+
         languageName = self.request.get('LanguageName')
         testName = self.request.get('TestName')
         startDate = self.request.get('StartDate')
         endDate = self.request.get('EndDate')
+        attempts = self.request.get('Attempts')
 
-        self.session['LanguageName'] = languageName
-        self.session['TestName'] = testName
-        self.session['StartDate'] = startDate
-        self.session['EndDate'] = endDate
+        #Query tests
+        test_query = Tests.query(Tests.languageName == languageName, Tests.testName == testName).fetch()
+        error = False
 
-        template_values = {
-            "user": user,
-            "login_url": login_url,
-            "logout_url": logout_url,
-        }
+        #Test name is not taken
+        if len(test_query) == 0:
 
-        template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
-        self.response.write(template.render(template_values))
+            #If start date is before end date
+            if startDate < endDate:
+                CreateTestHelper(
+                    adminID=user.user_id(),
+                    languageName=languageName,
+                    testName=testName,
+                    startDate=datetime.datetime.strptime(startDate, '%Y-%m-%dT%H:%M'),
+                    endDate=datetime.datetime.strptime(endDate, '%Y-%m-%dT%H:%M'),
+                    attempts=int(attempts),
+                    questions=[]
+                ).put()
+
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                }
+
+                template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
+                self.response.write(template.render(template_values))
+
+            else:
+                message = "Error: End date cannot be before start date."
+                error = True
+
+        #Test name already taken for chosen language
+        else:
+            message = "Test name already exists for that language."
+            error = True
+
+        if error:
+            languages = Language.query().fetch()
+            template_values = {
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
+                "languages": languages,
+                "message": message,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/CreateTest.html')
+            self.response.write(template.render(template_values))
 
 #Called when the user adds a word to a test
 class AddTestWord(webapp2.RequestHandler):
@@ -1367,23 +1404,90 @@ class AddTestWord(webapp2.RequestHandler):
         login_url = users.create_login_url(self.request.path)
         logout_url = users.create_logout_url(self.request.path)
 
-        languageName = self.session.get('LanguageName')
-        testName = self.session.get('TestName')
-        startDate = self.session.get('StartDate')
-        endDate = self.session.get('EndDate')
-        englishWord = self.request.get('EnglishWord')
-        #self.response.write(languageName + " " + testName + " " + englishWord)
+        if self.request.get('EnglishWord'):
+            englishWord = self.request.get('EnglishWord')
+            test_helper = CreateTestHelper.query(CreateTestHelper.adminID == user.user_id()).fetch().pop()
 
-        #TODO: Add word to a list
+            #Check if word exists for this language
+            word_query = Word.query(Word.englishWord == englishWord, Word.languageName == test_helper.languageName).fetch()
 
-        template_values = {
-            "user": user,
-            "login_url": login_url,
-            "logout_url": logout_url,
-        }
+            #The word exists and we can use it
+            if len(word_query) != 0:
+                word_list = test_helper.questions
+                word_list.append(englishWord)
+                test_helper.questions = word_list
+                tanslated_list = translate_list(word_list, test_helper.languageName)
+                test_helper.put()
+                tanslated_list.reverse()
 
-        template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
-        self.response.write(template.render(template_values))
+                template_values = {
+                        "user": user,
+                        "login_url": login_url,
+                        "logout_url": logout_url,
+                        "word_list": word_list,
+                        "translated_list": tanslated_list
+                }
+
+                template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
+                self.response.write(template.render(template_values))
+
+            #The word does not exist
+            else:
+                message = "Error: Word does not exist."
+                word_list = test_helper.questions
+                tanslated_list = translate_list(word_list, test_helper.languageName)
+                tanslated_list.reverse()
+                template_values = {
+                        "user": user,
+                        "login_url": login_url,
+                        "logout_url": logout_url,
+                        "message": message,
+                        "word_list": word_list,
+                        "translated_list": tanslated_list
+                }
+
+                template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
+                self.response.write(template.render(template_values))
+
+        elif self.request.get('completeTest'):
+            test_helper = CreateTestHelper.query(CreateTestHelper.adminID == user.user_id()).fetch().pop()
+
+            if len(test_helper.questions) != 0:
+
+                Tests(languageName=test_helper.languageName,
+                      testName=test_helper.testName,
+                      startDate=test_helper.startDate,
+                      endDate=test_helper.endDate,
+                      attempts=test_helper.attempts,
+                      questions=test_helper.questions).put()
+
+                languages = Language.query().fetch()
+                message = "Test created successfully"
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "languages": languages,
+                    "message": message,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/CreateTest.html')
+                self.response.write(template.render(template_values))
+
+            else:
+                message = "Error: No words were added. A test should have at least one question."
+                template_values = {
+                        "user": user,
+                        "login_url": login_url,
+                        "logout_url": logout_url,
+                        "message": message,
+                }
+
+                template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
+                self.response.write(template.render(template_values))
+
+
+        #template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
+        #self.response.write(template.render(template_values))
 
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),

@@ -362,3 +362,14 @@ class StudentTests(ndb.Model):
     language = ndb.StringProperty(required=True)
     attempts = ndb.IntegerProperty(default=0)
     score = ndb.IntegerProperty(default=0)
+
+
+#A model used as temporary storage while a teacher creates a test
+class CreateTestHelper(ndb.Model):
+    adminID = ndb.StringProperty(required=True)
+    languageName = ndb.StringProperty(required=True)
+    testName = ndb.StringProperty(required=True)
+    startDate = ndb.DateTimeProperty(required=True)
+    endDate = ndb.DateTimeProperty(required=True)
+    attempts = ndb.IntegerProperty(default=3)
+    questions = ndb.StringProperty(repeated=True)
