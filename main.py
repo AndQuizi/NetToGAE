@@ -1296,6 +1296,11 @@ class TestPage(webapp2.RequestHandler):
                 self.response.write(template.render())
 
 
+#-------------------------------- Admin Pages --------------------------------
+#I had trouble setting these pages to admin users only via app.yaml and a separate admin.py file
+#So each page has logic to check if the user is an admin or not
+
+#Teacher menu
 class TeachersHub(webapp2.RequestHandler):
     def dispatch(self):
         # Get a session store for this request.
@@ -1414,6 +1419,149 @@ class WordPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/WordPage.html')
         self.response.write(template.render(template_values))
 
+
+#Admin page to manage tests
+class ManageTests(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            if users.is_current_user_admin():
+                login_url = users.create_login_url(self.request.path)
+                logout_url = users.create_logout_url(self.request.path)
+                languages = Language.query().fetch()
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "languages": languages,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/ManageTests.html')
+                self.response.write(template.render(template_values))
+
+            else:
+                self.response.write("Request Denied")
+        else:
+            self.response.write("Request Denied")
+
+#Admin page to creat test
+class CreateTest(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            if users.is_current_user_admin():
+                login_url = users.create_login_url(self.request.path)
+                logout_url = users.create_logout_url(self.request.path)
+                languages = Language.query().fetch()
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "languages": languages,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/CreateTest.html')
+                self.response.write(template.render(template_values))
+
+            else:
+                self.response.write("Request Denied")
+        else:
+            self.response.write("Request Denied")
+
+    #The user submitted the first half of the form
+    #TODO: Check if test name already exists
+    def post(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+
+        languageName = self.request.get('LanguageName')
+        testName = self.request.get('TestName')
+        startDate = self.request.get('StartDate')
+        endDate = self.request.get('EndDate')
+
+        self.session['LanguageName'] = languageName
+        self.session['TestName'] = testName
+        self.session['StartDate'] = startDate
+        self.session['EndDate'] = endDate
+
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+        }
+
+        template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
+        self.response.write(template.render(template_values))
+
+#Called when the user adds a word to a test
+class AddTestWord(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def post(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+
+        languageName = self.session.get('LanguageName')
+        testName = self.session.get('TestName')
+        startDate = self.session.get('StartDate')
+        endDate = self.session.get('EndDate')
+        englishWord = self.request.get('EnglishWord')
+        #self.response.write(languageName + " " + testName + " " + englishWord)
+
+        #TODO: Add word to a list
+
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+        }
+
+        template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
+        self.response.write(template.render(template_values))
+
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
                                           ('/Italian', Italian),
@@ -1426,4 +1574,7 @@ application = webapp2.WSGIApplication([
                                           ('/TestPage', TestPage),
                                           ('/TeachersHub', TeachersHub),
                                           ('/WordPage', WordPage),
+                                          ('/ManageTests', ManageTests),
+                                          ('/CreateTest', CreateTest),
+                                          ('/AddTestWord', AddTestWord),
                                       ], config=config, debug=True)

@@ -3,7 +3,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
-    <title>Add Word - Flash Language</title>
+    <title>Add Test Word- Flash Language</title>
 </head>
 <body>
 
@@ -38,46 +38,22 @@
 </style>
 
 <h1>Teachers Hub</h1>
-<h3>Add Word</h3>
+<h3>Create Test</h3>
 <p>&nbsp;</p>
 <p>{{ message }}</p>
-<form method="post" enctype="multipart/form-data">
 
-<b>Language</b>
-<br>
-<select name="LanguageName">
-  {% for language in languages %}
-      <option value="{{ language.languageName }}">{{ language.languageName }}</option>
-  {% endfor %}
-</select>
-<p>&nbsp;</p>
-
-<b>English Word (case sensitive)</b>
-<br>
-<input type="text" name="EnglishWord" required>
-<p>&nbsp;</p>
-
-<b>Translation</b>
-<br>
-<input type="text" name="Translation" required>
-<p>&nbsp;</p>
-
-<b>Difficulty</b>
-<br>
-<select name="Difficulty">
-  <option value="Beginner">Beginner</option>
-  <option value="Intermediate">Intermediate</option>
-  <option value="Advanced">Advanced</option>
-</select>
-<p>&nbsp;</p>
-
-<b>Image (optional)</b>
-<br>
-<input id="fileupload" name="imageFile" type="file" />
-<p>&nbsp;</p>
-<input ID="button" type="submit" value="Add Word">
+<b>Finish and Create</b>
+<form>
+<input ID="button" type="submit" value="Complete">
 </form>
 
+<p>&nbsp;</p>
+<b>Add word (case sensitive)</b>
+<form method="post" action="/AddTestWord" enctype="multipart/form-data">
+<input type="text" name="EnglishWord" required>
+<br>
+<input ID="button" type="submit" value="Add">
+</form>
 
 <!--footer-->
 <hr/>

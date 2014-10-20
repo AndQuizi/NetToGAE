@@ -3,7 +3,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
-    <title>Add Word - Flash Language</title>
+    <title>Create Test - Flash Language</title>
 </head>
 <body>
 
@@ -38,9 +38,10 @@
 </style>
 
 <h1>Teachers Hub</h1>
-<h3>Add Word</h3>
+<h3>Create Test</h3>
 <p>&nbsp;</p>
 <p>{{ message }}</p>
+
 <form method="post" enctype="multipart/form-data">
 
 <b>Language</b>
@@ -52,32 +53,28 @@
 </select>
 <p>&nbsp;</p>
 
-<b>English Word (case sensitive)</b>
+<b>Test Name</b>
 <br>
-<input type="text" name="EnglishWord" required>
+<input type="text" name="TestName" required>
 <p>&nbsp;</p>
 
-<b>Translation</b>
+<b>Start Date</b>
 <br>
-<input type="text" name="Translation" required>
+<input type="datetime-local" name="StartDate" required>
 <p>&nbsp;</p>
 
-<b>Difficulty</b>
+<b>End Date</b>
 <br>
-<select name="Difficulty">
-  <option value="Beginner">Beginner</option>
-  <option value="Intermediate">Intermediate</option>
-  <option value="Advanced">Advanced</option>
-</select>
+<input type="datetime-local" name="EndDate" required>
 <p>&nbsp;</p>
 
-<b>Image (optional)</b>
+<b>Attempts</b>
 <br>
-<input id="fileupload" name="imageFile" type="file" />
+<input type="number" name="Attempts" min="1" required>
 <p>&nbsp;</p>
-<input ID="button" type="submit" value="Add Word">
+
+<input ID="button" type="submit" value="Continue">
 </form>
-
 
 <!--footer-->
 <hr/>
