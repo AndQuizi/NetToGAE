@@ -297,7 +297,7 @@ class PractiseIntro(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
-#TODO: Both PractisePage and TestPage can use some refactoring
+
 #Practise page, includes practise results
 #Uses POST
 #This class encompasses all of practise mode
@@ -515,10 +515,10 @@ class PractisePage(webapp2.RequestHandler):
             #The users answer
             choice = self.request.get('answerChoice')
 
-
             #Get information on current session
             practise_query = PractiseSession.query(PractiseSession.sessionID == session_key)
             practise_state = practise_query.fetch()
+
             if len(practise_state) != 0:
                 practise_state = practise_state.pop()
                 diff = practise_state.difficulty
@@ -663,52 +663,17 @@ class TestIntro(webapp2.RequestHandler):
                     self.response.write(template.render(template_values))
 
                 #If the user is signing up for French
-                elif lang == "French":
-                    #The user is signed up
-                    if query[0].french:
-                        testKey = id_generator()
-                        self.session['testKey'] = testKey
-
-                        #Get current time
-                        current_date = datetime.datetime.now()
-                        #Query tests, filtering start/end dates and language
-                        tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
-
-                        #BadRequestError: Only one inequality filter per query is supported.
-                        #I can't compare the end date directly in the query, so below is a workaround
-                        valid_tests = []
-                        for test in tests:
-                            if test.endDate > current_date:
-                                valid_tests.append(test)
-
-                        no_tests_message = ""
-                        if len(valid_tests) == 0:
-                            no_tests_message = "There are no tests at this time."
-
-                        #Get students attempt count for each test
-                        curr_attempts = get_test_attempts(valid_tests, user, lang)
-
-                        template_values = {
-                            'language': lang,
-                            'user': user,
-                            'login_url': login_url,
-                            'logout_url': logout_url,
-                            'tests': valid_tests,
-                            'message': no_tests_message,
-                            'attempts': curr_attempts,
-                        }
-
-                        template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
-                        self.response.write(template.render(template_values))
-                    #The user is not signed up
-                    else:
-                        template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
-                        self.response.write(template.render(template_values))
-
-                #If the user is signing up for Italian
                 else:
+                    registered = False
+                    if lang == "French":
+                        if query[0].french:
+                            registered = True
+                    else:
+                        if query[0].italian:
+                            registered = True
+
                     #The user is signed up
-                    if query[0].italian:
+                    if registered:
                         testKey = id_generator()
                         self.session['testKey'] = testKey
 
@@ -781,212 +746,69 @@ class TestIntro(webapp2.RequestHandler):
             'logout_url': logout_url,
             'message': message,
         }
-        #Get current student courses
-        query = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch()
 
-        #The student never signed up for a course before
-        if len(query) == 0:
-            if lang == "French":
-                #Get French course code
-                course_code = Language.query(Language.languageName == "French").fetch().pop().courseCode
+        #Get course code
 
-                #If user code is same as real code
-                #Signs user up and redirects to test intro page
-                if code == course_code:
+        course_code = Language.query(Language.languageName == lang).fetch().pop().courseCode
+
+        if code == course_code:
+
+            #Get current student courses
+            query = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch()
+            if len(query) == 0:
+                if lang == "French":
                     StudentCourses(studentID=user.user_id(),
                                    french=True).put()
-
-                    testKey = id_generator()
-                    self.session['testKey'] = testKey
-
-                    #Get current time
-                    current_date = datetime.datetime.now()
-                    #Query tests, filtering start/end dates and language
-                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
-
-                    #BadRequestError: Only one inequality filter per query is supported.
-                    #I can't compare the end date directly in the query, so below is a workaround
-                    valid_tests = []
-                    for test in tests:
-                        if test.endDate > current_date:
-                            valid_tests.append(test)
-
-                    no_tests_message = ""
-                    if len(valid_tests) == 0:
-                        no_tests_message = "There are no tests at this time."
-
-                    #Get students attempt count for each test
-                    curr_attempts = get_test_attempts(valid_tests, user, lang)
-
-                    template_values = {
-                        'language': lang,
-                        'user': user,
-                        'login_url': login_url,
-                        'logout_url': logout_url,
-                        'tests': valid_tests,
-                        'message': no_tests_message,
-                        'attempts': curr_attempts,
-                    }
-
-                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
-                    self.response.write(template.render(template_values))
-
-                #Invalid course code
                 else:
-                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
-                    self.response.write(template.render(template_values))
-
-            if lang == "Italian":
-                #Get Italian course code
-                course_code = Language.query(Language.languageName == "Italian").fetch().pop().courseCode
-
-                #If user code is same as real code
-                #Signs user up and redirects to test intro page
-                if code == course_code:
                     StudentCourses(studentID=user.user_id(),
                                    italian=True).put()
-                    testKey = id_generator()
-
-                    #Get current time
-                    current_date = datetime.datetime.now()
-                    #Query tests, filtering start/end dates and language
-                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
-
-                    #BadRequestError: Only one inequality filter per query is supported.
-                    #I can't compare the end date directly in the query, so below is a workaround
-                    valid_tests = []
-                    for test in tests:
-                        if test.endDate > current_date:
-                            valid_tests.append(test)
-
-                    no_tests_message = ""
-                    if len(valid_tests) == 0:
-                        no_tests_message = "There are no tests at this time."
-
-                    #Get students attempt count for each test
-                    curr_attempts = get_test_attempts(valid_tests, user, lang)
-
-                    template_values = {
-                        'language': lang,
-                        'user': user,
-                        'login_url': login_url,
-                        'logout_url': logout_url,
-                        'tests': valid_tests,
-                        'message': no_tests_message,
-                        'attempts': curr_attempts,
-                    }
-
-                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
-                    self.response.write(template.render(template_values))
-
-                #Invalid course code
+            else:
+                query = query.pop()
+                if lang == "French":
+                    query.french = True
                 else:
-                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
-                    self.response.write(template.render(template_values))
+                    query.italian = True
+                query.put()
 
-        #The user has signed up for a class before
-        #In this case edit already created StudentCourse entity
+            testKey = id_generator()
+            self.session['testKey'] = testKey
+
+            #Get current time
+            current_date = datetime.datetime.now()
+            #Query tests, filtering start/end dates and language
+            tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
+
+            #BadRequestError: Only one inequality filter per query is supported.
+            #I can't compare the end date directly in the query, so below is a workaround
+            valid_tests = []
+            for test in tests:
+                if test.endDate > current_date:
+                    valid_tests.append(test)
+
+            no_tests_message = ""
+            if len(valid_tests) == 0:
+                no_tests_message = "There are no tests at this time."
+
+            #Get students attempt count for each test
+            curr_attempts = get_test_attempts(valid_tests, user, lang)
+
+            template_values = {
+                'language': lang,
+                'user': user,
+                'login_url': login_url,
+                'logout_url': logout_url,
+                'tests': valid_tests,
+                'message': no_tests_message,
+                'attempts': curr_attempts,
+            }
+
+            template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
+            self.response.write(template.render(template_values))
+
+        #Invalid course code
         else:
-            if lang == "French":
-                #Get French course code
-                course_code = Language.query(Language.languageName == "French").fetch().pop().courseCode
-
-                #If user code is same as real code
-                #Signs user up and redirects to test intro page
-                if code == course_code:
-                    student_course = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch().pop()
-                    student_course.french = True
-                    student_course.put()
-
-                    testKey = id_generator()
-                    self.session['testKey'] = testKey
-                    #Get current time
-                    current_date = datetime.datetime.now()
-                    #Query tests, filtering start/end dates and language
-                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
-
-                    #BadRequestError: Only one inequality filter per query is supported.
-                    #I can't compare the end date directly in the query, so below is a workaround
-                    valid_tests = []
-                    for test in tests:
-                        if test.endDate > current_date:
-                            valid_tests.append(test)
-
-                    no_tests_message = ""
-                    if len(valid_tests) == 0:
-                        no_tests_message = "There are no tests at this time."
-
-                    #Get students attempt count for each test
-                    curr_attempts = get_test_attempts(valid_tests, user, lang)
-
-                    template_values = {
-                        'language': lang,
-                        'user': user,
-                        'login_url': login_url,
-                        'logout_url': logout_url,
-                        'tests': valid_tests,
-                        'message': no_tests_message,
-                        'attempts': curr_attempts,
-                    }
-
-                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
-                    self.response.write(template.render(template_values))
-
-                #Invalid course code
-                else:
-                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
-                    self.response.write(template.render(template_values))
-
-            if lang == "Italian":
-                #Get Italian course code
-                course_code = Language.query(Language.languageName == "Italian").fetch().pop().courseCode
-
-                #If user code is same as real code
-                #Signs user up and redirects to test intro page
-                if code == course_code:
-                    student_course = StudentCourses.query(StudentCourses.studentID == user.user_id()).fetch().pop()
-                    student_course.italian = True
-                    student_course.put()
-
-                    testKey = id_generator()
-                    self.session['testKey'] = testKey
-
-                    #Get current time
-                    current_date = datetime.datetime.now()
-                    #Query tests, filtering start/end dates and language
-                    tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
-
-                    #BadRequestError: Only one inequality filter per query is supported.
-                    #I can't compare the end date directly in the query, so below is a workaround
-                    valid_tests = []
-                    for test in tests:
-                        if test.endDate > current_date:
-                            valid_tests.append(test)
-
-                    no_tests_message = ""
-                    if len(valid_tests) == 0:
-                        no_tests_message = "There are no tests at this time."
-
-                    #Get students attempt count for each test
-                    curr_attempts = get_test_attempts(valid_tests, user, lang)
-
-                    template_values = {
-                        'language': lang,
-                        'user': user,
-                        'login_url': login_url,
-                        'logout_url': logout_url,
-                        'tests': valid_tests,
-                        'message': no_tests_message,
-                        'attempts': curr_attempts,
-                    }
-
-                    template = JINJA_ENVIRONMENT.get_template('templates/TestIntro.html')
-                    self.response.write(template.render(template_values))
-
-                #Invalid course code
-                else:
-                    template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
-                    self.response.write(template.render(template_values))
+            template = JINJA_ENVIRONMENT.get_template('templates/CourseRegister.html')
+            self.response.write(template.render(template_values))
 
 
 #Test page, includes test results
@@ -1020,6 +842,7 @@ class TestPage(webapp2.RequestHandler):
         current_word = None
         score = 0
 
+        #Checks if user didn't max their attempts
         #If it's the first question
         #Initializes question queue and displays first question
         if self.request.get('testChoice'):
