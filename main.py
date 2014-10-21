@@ -380,39 +380,49 @@ class PractisePage(webapp2.RequestHandler):
             if len(words) != 0:
                 current_word = words.pop()
 
-            #Put rest of words/question in list (acts as a Queue)
-            word_list = []
-            for word in words:
-                word_list.append(word.translatedWord)
+                #Put rest of words/question in list (acts as a Queue)
+                word_list = []
+                for word in words:
+                    word_list.append(word.translatedWord)
 
-            #Save current session ID, difficulty, word queue, score, and current question
-            PractiseSession(sessionID=session_key,
-                            difficulty=diff,
-                            wordStrings=word_list,
-                            score=0,
-                            currWord=current_word.translatedWord,
-                            questionNumber=1).put()
+                #Save current session ID, difficulty, word queue, score, and current question
+                PractiseSession(sessionID=session_key,
+                                difficulty=diff,
+                                wordStrings=word_list,
+                                score=0,
+                                currWord=current_word.translatedWord,
+                                questionNumber=1).put()
 
-            #Get 3 other false answers
-            choices = get_choices(lang, diff, current_word)
+                #Get 3 other false answers
+                choices = get_choices(lang, diff, current_word)
 
-            #Randomize choices
-            choice_list = randomize_choices(choices, current_word)
+                #Randomize choices
+                choice_list = randomize_choices(choices, current_word)
 
-            #Values for template
-            template_values = {
-                'currWord': current_word,
-                'choice1': choice_list.pop(),
-                'choice2': choice_list.pop(),
-                'choice3': choice_list.pop(),
-                'choice4': choice_list.pop(),
-                'score': score,
-                "user": user,
-                "login_url": login_url,
-                "logout_url": logout_url,
-            }
-            template = JINJA_ENVIRONMENT.get_template('templates/PractisePage.html')
-            self.response.write(template.render(template_values))
+                #Values for template
+                template_values = {
+                    'currWord': current_word,
+                    'choice1': choice_list.pop(),
+                    'choice2': choice_list.pop(),
+                    'choice3': choice_list.pop(),
+                    'choice4': choice_list.pop(),
+                    'score': score,
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/PractisePage.html')
+                self.response.write(template.render(template_values))
+            #There are no words in the datastore
+            else:
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    'language': lang,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/PractiseIntro.html')
+                self.response.write(template.render(template_values))
 
         #If the user clicks end practise button
         #Ends current practise session and displays results
