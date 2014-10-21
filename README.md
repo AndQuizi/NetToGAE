@@ -9,7 +9,7 @@ Complete:
 -Sessions
 -Practise mode 
 -Datastore
--Some unit tests
+-Unit tests
 -User accounts
 -Test mode
 -Admin mode
