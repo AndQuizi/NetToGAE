@@ -1229,37 +1229,54 @@ class WordPage(webapp2.RequestHandler):
         #Image. I am skipping this for now because I do not want to store my image in a model with Blobstore.
         #Instead I want to add the image to the images folder. If this is not possible then I will use Blobstore as TODO
         #In any case this feature isn't very important
+        if language != "":
+            #Check if word already exists for this language
+            word_query = Word.query(Word.englishWord == englishWord, Word.languageName == language).fetch()
+            message = ""
+            #If word does not already exist
+            if len(word_query) == 0:
+                Word(englishWord=englishWord,
+                     imagePath='default.jpg',
+                     languageName=language,
+                     translatedWord=translation,
+                     difficulty=difficulty).put()
 
-        #Check if word already exists for this language
-        word_query = Word.query(Word.englishWord == englishWord, Word.languageName == language).fetch()
-        message = ""
-        #If word does not already exist
-        if len(word_query) == 0:
-            Word(englishWord=englishWord,
-                 imagePath='default.jpg',
-                 languageName=language,
-                 translatedWord=translation,
-                 difficulty=difficulty).put()
+                #I would like a try-catch block or something here
+                message = "Added word successfully."
 
-            #I would like a try-catch block or something here
-            message = "Added word successfully."
+            #This word already exists for this language
+            else:
+                message = "Error: Word already exists."
 
-        #This word already exists for this language
+            login_url = users.create_login_url(self.request.path)
+            logout_url = users.create_logout_url(self.request.path)
+            languages = Language.query().fetch()
+            template_values = {
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
+                "languages": languages,
+                "message": message,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/WordPage.html')
+            self.response.write(template.render(template_values))
+
+        #This is only called when there are no languages in the datastore, which should be never
         else:
-            message = "Error: Word already exists."
+            message = "Error: No language selected."
 
-        login_url = users.create_login_url(self.request.path)
-        logout_url = users.create_logout_url(self.request.path)
-        languages = Language.query().fetch()
-        template_values = {
-            "user": user,
-            "login_url": login_url,
-            "logout_url": logout_url,
-            "languages": languages,
-            "message": message,
-        }
-        template = JINJA_ENVIRONMENT.get_template('templates/WordPage.html')
-        self.response.write(template.render(template_values))
+            login_url = users.create_login_url(self.request.path)
+            logout_url = users.create_logout_url(self.request.path)
+            languages = Language.query().fetch()
+            template_values = {
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
+                "languages": languages,
+                "message": message,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/WordPage.html')
+            self.response.write(template.render(template_values))
 
 
 #Admin page to manage tests
@@ -1731,35 +1748,52 @@ class ChangeCourseCode(webapp2.RequestHandler):
         languageName = self.request.get('LanguageName')
 
         #Set course code
-        language_query = Language.query(Language.languageName == languageName).fetch().pop()
-        language_query.courseCode = new_code
-        language_query.put()
+        language_query = Language.query(Language.languageName == languageName).fetch()
+        if len(language_query) != 0:
+            language_query = language_query.pop()
+            language_query.courseCode = new_code
+            language_query.put()
 
-        #Remove students from the course
-        student_language_query = StudentCourses.query().fetch()
+            #Remove students from the course
+            student_language_query = StudentCourses.query().fetch()
 
-        if languageName == "Italian":
-            for student in student_language_query:
-                student.italian = False
-                student.put()
+            if languageName == "Italian":
+                for student in student_language_query:
+                    student.italian = False
+                    student.put()
 
-        elif languageName == "French":
-            for student in student_language_query:
-                student.french = False
-                student.put()
+            elif languageName == "French":
+                for student in student_language_query:
+                    student.french = False
+                    student.put()
 
-        message = "Course code changed."
+            message = "Course code changed."
 
-        languages = Language.query().fetch()
-        template_values = {
-            "user": user,
-            "login_url": login_url,
-            "logout_url": logout_url,
-            "languages": languages,
-            "message": message,
-        }
-        template = JINJA_ENVIRONMENT.get_template('templates/ChangeCourseCode.html')
-        self.response.write(template.render(template_values))
+            languages = Language.query().fetch()
+            template_values = {
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
+                "languages": languages,
+                "message": message,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/ChangeCourseCode.html')
+            self.response.write(template.render(template_values))
+
+        #This only happens when the language datastore is empty, which should be never
+        else:
+            message = "Error: No language chosen."
+
+            languages = Language.query().fetch()
+            template_values = {
+                "user": user,
+                "login_url": login_url,
+                "logout_url": logout_url,
+                "languages": languages,
+                "message": message,
+            }
+            template = JINJA_ENVIRONMENT.get_template('templates/ChangeCourseCode.html')
+            self.response.write(template.render(template_values))
 
 
 application = webapp2.WSGIApplication([
