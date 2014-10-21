@@ -19,6 +19,7 @@
     {% else %}
         <li><a href="{{ login_url }}">Login</a></li>
     {% endif %}
+    <li><a href="/TeachersHub">Admin</a></li>
 </ul>
 <style>
 
@@ -29,10 +30,12 @@
     p {
         text-align: center;
     }
+
     .button {
-            width: 150px;
-            height: 50px;
-        }
+        width: 150px;
+        height: 50px;
+    }
+
     table {
         margin-left: auto;
         margin-right: auto;
@@ -42,40 +45,45 @@
 </style>
 
 <h1>Teachers Hub</h1>
+
 <h3>Create Test</h3>
+
 <p>&nbsp;</p>
+
 <p>{{ message }}</p>
 
 <b>Finish and Create</b>
+
 <form method="post" action="/AddTestWord">
-<input ID="button" name="completeTest" type="submit" value="Complete">
+    <input ID="button" name="completeTest" type="submit" value="Complete">
 </form>
 
 <p>&nbsp;</p>
 <b>Add word (case sensitive)</b>
+
 <form method="post" action="/AddTestWord" enctype="multipart/form-data">
-<input type="text" name="EnglishWord" required>
-<br>
-<input ID="button" type="submit" value="Add">
+    <input type="text" name="EnglishWord" required>
+    <br>
+    <input ID="button" type="submit" value="Add">
 </form>
 <table id="resultTable">
-        <tr>
-            <th>English Word</th>
-            <th>Translation</th>
-        </tr>
+    <tr>
+        <th>English Word</th>
+        <th>Translation</th>
+    </tr>
 
     {% for word in word_list %}
         <tr>
-         <td>
-                    {{ word }}
-                </td>
-        <td>
-                    {{ translated_list.pop() }}
-                </td>
+            <td>
+                {{ word }}
+            </td>
+            <td>
+                {{ translated_list.pop() }}
+            </td>
         </tr>
- {% endfor %}
+    {% endfor %}
 
-    </table>
+</table>
 
 <!--footer-->
 <hr/>

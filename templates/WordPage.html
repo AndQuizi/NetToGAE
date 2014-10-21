@@ -19,6 +19,7 @@
     {% else %}
         <li><a href="{{ login_url }}">Login</a></li>
     {% endif %}
+    <li><a href="/TeachersHub">Admin</a></li>
 </ul>
 <style>
 
@@ -29,53 +30,63 @@
     p {
         text-align: center;
     }
+
     .button {
-            width: 150px;
-            height: 50px;
-        }
+        width: 150px;
+        height: 50px;
+    }
 
 
 </style>
 
 <h1>Teachers Hub</h1>
+
 <h3>Add Word</h3>
+
 <p>&nbsp;</p>
+
 <p>{{ message }}</p>
+
 <form method="post" enctype="multipart/form-data">
 
-<b>Language</b>
-<br>
-<select name="LanguageName">
-  {% for language in languages %}
-      <option value="{{ language.languageName }}">{{ language.languageName }}</option>
-  {% endfor %}
-</select>
-<p>&nbsp;</p>
+    <b>Language</b>
+    <br>
+    <select name="LanguageName">
+        {% for language in languages %}
+            <option value="{{ language.languageName }}">{{ language.languageName }}</option>
+        {% endfor %}
+    </select>
 
-<b>English Word (case sensitive)</b>
-<br>
-<input type="text" name="EnglishWord" required>
-<p>&nbsp;</p>
+    <p>&nbsp;</p>
 
-<b>Translation</b>
-<br>
-<input type="text" name="Translation" required>
-<p>&nbsp;</p>
+    <b>English Word (case sensitive)</b>
+    <br>
+    <input type="text" name="EnglishWord" required>
 
-<b>Difficulty</b>
-<br>
-<select name="Difficulty">
-  <option value="Beginner">Beginner</option>
-  <option value="Intermediate">Intermediate</option>
-  <option value="Advanced">Advanced</option>
-</select>
-<p>&nbsp;</p>
+    <p>&nbsp;</p>
 
-<b>Image (optional)</b>
-<br>
-<input id="fileupload" name="imageFile" type="file" />
-<p>&nbsp;</p>
-<input ID="button" type="submit" value="Add Word">
+    <b>Translation</b>
+    <br>
+    <input type="text" name="Translation" required>
+
+    <p>&nbsp;</p>
+
+    <b>Difficulty</b>
+    <br>
+    <select name="Difficulty">
+        <option value="Beginner">Beginner</option>
+        <option value="Intermediate">Intermediate</option>
+        <option value="Advanced">Advanced</option>
+    </select>
+
+    <p>&nbsp;</p>
+
+    <b>Image (optional)</b>
+    <br>
+    <input id="fileupload" name="imageFile" type="file"/>
+
+    <p>&nbsp;</p>
+    <input ID="button" type="submit" value="Add Word">
 </form>
 
 

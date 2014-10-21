@@ -3,7 +3,7 @@
 <html>
 <head>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
-    <title>Delete Test - Flash Language</title>
+    <title>Course Code - Flash Language</title>
 </head>
 <body>
 
@@ -20,6 +20,7 @@
         <li><a href="{{ login_url }}">Login</a></li>
     {% endif %}
     <li><a href="/TeachersHub">Admin</a></li>
+
 </ul>
 <style>
 
@@ -42,9 +43,9 @@
 
 <h1>Teachers Hub</h1>
 
-<h3>Delete Test</h3>
+<h3>Change Course Codes</h3>
 
-<p>Warning: Deleting a test deletes ALL student marks for that test. Delete with Caution!</p>
+<p>Warning: Changing a course code removes all students from that course!</p>
 
 <p>&nbsp;</p>
 
@@ -52,28 +53,22 @@
 
 <form method="post" enctype="multipart/form-data">
 
-    <b>Italian</b>
+    <b>Language</b>
     <br>
-    <select name="testNameItalian">
-        {% for test in italian_tests %}
-            <option value="{{ test.testName }}">{{ test.testName }}</option>
+    <select name="LanguageName">
+        {% for language in languages %}
+            <option value="{{ language.languageName }}">{{ language.languageName }}</option>
         {% endfor %}
     </select>
-    <br>
-    <input ID="button2" type="submit" name="deleteItalian" value="Delete Test"
-           onclick="return confirm('Are you sure you want to delete?')">
 
     <p>&nbsp;</p>
-    <b>French</b>
+
+    <b>New Course Code</b>
     <br>
-    <select name="testNameFrench">
-        {% for test in french_tests %}
-            <option value="{{ test.testName }}">{{ test.testName }}</option>
-        {% endfor %}
-    </select>
-    <br>
-    <input ID="button2" type="submit" name="deleteFrench" value="Delete Test"
-           onclick="return confirm('Are you sure you want to delete?')">
+    <input type="text" name="newCourseCode" required>
+
+    <p>&nbsp;</p>
+    <input ID="button" type="submit" value="Update" onclick="return confirm('Are you sure you want to delete?')">
 </form>
 <!--footer-->
 <hr/>

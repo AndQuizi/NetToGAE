@@ -19,6 +19,7 @@
     {% else %}
         <li><a href="{{ login_url }}">Login</a></li>
     {% endif %}
+    <li><a href="/TeachersHub">Admin</a></li>
 </ul>
 <style>
 
@@ -29,14 +30,17 @@
     p {
         text-align: center;
     }
+
     .button2 {
-            width: 25px;
-            height: 10px;
-     }
+        width: 25px;
+        height: 10px;
+    }
+
     th, td {
         padding: 15px;
         text-align: center;
     }
+
     table {
         margin-left: auto;
         margin-right: auto;
@@ -47,54 +51,58 @@
 
 
 <h1>Teachers Hub</h1>
+
 <h3>Extract Marks</h3>
+
 <p>&nbsp;</p>
+
 <p>{{ message }}</p>
 
 <form method="post" enctype="multipart/form-data">
 
-<b>Italian</b>
-<br>
-<select name="testNameItalian">
-  {% for test in italian_tests %}
-      <option value="{{ test.testName }}">{{ test.testName }}</option>
-  {% endfor %}
-</select>
-<br>
-<input ID="button2" type="submit" name="extractItalian" value="Extract Italian Marks">
-<p>&nbsp;</p>
-<b>French</b>
-<br>
-<select name="testNameFrench">
-  {% for test in french_tests %}
-      <option value="{{ test.testName }}">{{ test.testName }}</option>
-  {% endfor %}
-</select>
-<br>
-<input ID="button2" type="submit" name="extractFrench" value="Extract French Marks">
+    <b>Italian</b>
+    <br>
+    <select name="testNameItalian">
+        {% for test in italian_tests %}
+            <option value="{{ test.testName }}">{{ test.testName }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <input ID="button2" type="submit" name="extractItalian" value="Extract Italian Marks">
+
+    <p>&nbsp;</p>
+    <b>French</b>
+    <br>
+    <select name="testNameFrench">
+        {% for test in french_tests %}
+            <option value="{{ test.testName }}">{{ test.testName }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <input ID="button2" type="submit" name="extractFrench" value="Extract French Marks">
 </form>
- <table id="resultTable">
+<table id="resultTable">
+    <tr>
+        <th>Email</th>
+        <th>Attempts</th>
+        <th>Final Score</th>
+    </tr>
+
+    {% for mark in marks %}
         <tr>
-            <th>Email</th>
-            <th>Attempts</th>
-            <th>Final Score</th>
+            <td>
+                {{ mark.studentID.email() }}
+            </td>
+            <td>
+                {{ mark.attempts }}
+            </td>
+            <td>
+                {{ mark.score }}/{{ questions }}
+            </td>
         </tr>
 
-{% for mark in marks %}
-    <tr>
-        <td>
-        {{ mark.studentID.email() }}
-            </td>
-         <td>
-        {{ mark.attempts }}
-             </td>
-         <td>
-        {{ mark.score }}/{{ questions }}
-    </td>
-      </tr>
-
- {% endfor %}
-   </table>
+    {% endfor %}
+</table>
 <!--footer-->
 <hr/>
 <footer>

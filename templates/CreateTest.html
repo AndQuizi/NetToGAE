@@ -19,6 +19,7 @@
     {% else %}
         <li><a href="{{ login_url }}">Login</a></li>
     {% endif %}
+    <li><a href="/TeachersHub">Admin</a></li>
 </ul>
 <style>
 
@@ -29,52 +30,61 @@
     p {
         text-align: center;
     }
+
     .button {
-            width: 150px;
-            height: 50px;
-        }
+        width: 150px;
+        height: 50px;
+    }
 
 
 </style>
 
 
 <h1>Teachers Hub</h1>
+
 <h3>Create Test</h3>
+
 <p>&nbsp;</p>
+
 <p>{{ message }}</p>
 
 <form method="post" enctype="multipart/form-data">
 
-<b>Language</b>
-<br>
-<select name="LanguageName">
-  {% for language in languages %}
-      <option value="{{ language.languageName }}">{{ language.languageName }}</option>
-  {% endfor %}
-</select>
-<p>&nbsp;</p>
+    <b>Language</b>
+    <br>
+    <select name="LanguageName">
+        {% for language in languages %}
+            <option value="{{ language.languageName }}">{{ language.languageName }}</option>
+        {% endfor %}
+    </select>
 
-<b>Test Name</b>
-<br>
-<input type="text" name="TestName" required>
-<p>&nbsp;</p>
+    <p>&nbsp;</p>
 
-<b>Start Date</b>
-<br>
-<input type="datetime-local" name="StartDate" required>
-<p>&nbsp;</p>
+    <b>Test Name</b>
+    <br>
+    <input type="text" name="TestName" required>
 
-<b>End Date</b>
-<br>
-<input type="datetime-local" name="EndDate" required>
-<p>&nbsp;</p>
+    <p>&nbsp;</p>
 
-<b>Attempts</b>
-<br>
-<input type="number" name="Attempts" min="1" required>
-<p>&nbsp;</p>
+    <b>Start Date</b>
+    <br>
+    <input type="datetime-local" name="StartDate" required>
 
-<input ID="button" type="submit" value="Continue">
+    <p>&nbsp;</p>
+
+    <b>End Date</b>
+    <br>
+    <input type="datetime-local" name="EndDate" required>
+
+    <p>&nbsp;</p>
+
+    <b>Attempts</b>
+    <br>
+    <input type="number" name="Attempts" min="1" required>
+
+    <p>&nbsp;</p>
+
+    <input ID="button" type="submit" value="Continue">
 </form>
 
 <!--footer-->

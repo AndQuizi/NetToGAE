@@ -14,7 +14,7 @@ from django.conf import settings
 from FlashLanguage.models import Word, UserResults, PractiseSession, Language, StudentCourses, Tests, TestSession, \
     StudentTests, CreateTestHelper
 import datetime
-import time
+
 
 settings._target = None
 
@@ -24,10 +24,9 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     autoescape=True)
 
 # Need this for using session keys
-# TODO: Change this later
 config = {}
 config['webapp2_extras.sessions'] = {
-    'secret_key': 'my-super-secret-key',
+    'secret_key': 'JvnAi2S0gPYSW7ihwDAe',
 }
 
 
@@ -128,6 +127,7 @@ def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
 
 
 #Homepage
+#This is the only page an admin can visit the admin section without manually typing the url
 class MainPage(webapp2.RequestHandler):
     def dispatch(self):
         # Get a session store for this request.
@@ -145,13 +145,19 @@ class MainPage(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def get(self):
+        #If user is an admin show admin button
+        admin = False
         user = users.get_current_user()
+        if users.is_current_user_admin():
+            admin = True
+
         login_url = users.create_login_url(self.request.path)
         logout_url = users.create_logout_url(self.request.path)
         template_values = {
             "user": user,
             "login_url": login_url,
             "logout_url": logout_url,
+            "admin": admin
         }
         template = JINJA_ENVIRONMENT.get_template('templates/Default.html')
         self.response.write(template.render(template_values))
@@ -159,9 +165,6 @@ class MainPage(webapp2.RequestHandler):
 
 #Italian Page
 class Italian(webapp2.RequestHandler):
-    #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
-    #Removing either of these functions will cause runtime a error
-    #I may find an easier way to do this later
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -194,8 +197,6 @@ class Italian(webapp2.RequestHandler):
 
 #French Page
 class French(webapp2.RequestHandler):
-    #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
-    #Removing either of these functions will cause runtime a error
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -258,8 +259,6 @@ class Contact(webapp2.RequestHandler):
 
 #Practise intro page
 class PractiseIntro(webapp2.RequestHandler):
-    #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
-    #Removing either of these functions will cause runtime a error
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -622,8 +621,6 @@ class PractisePage(webapp2.RequestHandler):
 #Test intro page, includes Course Register page
 #Checks if user is signed up for course and functions accordingly
 class TestIntro(webapp2.RequestHandler):
-    #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
-    #Removing either of these functions will cause runtime a error
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -641,6 +638,7 @@ class TestIntro(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def get(self):
+
         lang = self.session.get('Language')
         if lang:
             user = users.get_current_user()
@@ -816,8 +814,6 @@ class TestIntro(webapp2.RequestHandler):
 #Uses POST
 #This class encompasses all of test mode
 class TestPage(webapp2.RequestHandler):
-    #It is my understanding I need this "dispatch" and "session"  functions to use session variables.
-    #Removing either of these functions will cause runtime a error
     def dispatch(self):
         # Get a session store for this request.
         self.session_store = sessions.get_store(request=self.request)
@@ -837,9 +833,11 @@ class TestPage(webapp2.RequestHandler):
     def post(self):
         #Language for current practise session
         lang = self.session.get('Language')
+
         user = users.get_current_user()
         login_url = users.create_login_url(self.request.path)
         logout_url = users.create_logout_url(self.request.path)
+
         current_word = None
         score = 0
 
@@ -1125,6 +1123,7 @@ class TestPage(webapp2.RequestHandler):
 #-------------------------------- Admin Pages --------------------------------
 #I had trouble setting these pages to admin users only via app.yaml and a separate admin.py file
 #So each page has logic to check if the user is an admin or not
+#This method is not very elegant
 
 #Teacher menu
 class TeachersHub(webapp2.RequestHandler):
@@ -1144,6 +1143,7 @@ class TeachersHub(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def get(self):
+        #Make sure user is admin
         user = users.get_current_user()
         if user:
             if users.is_current_user_admin():
@@ -1202,8 +1202,7 @@ class WordPage(webapp2.RequestHandler):
             self.response.write("Request Denied")
 
     #Teacher attempts to add word to datastore
-    #TODO: Input checks such as escape strings. I am not sure how to do that here.
-    #I am also not sure now to do a try-catch block with ndb
+    #Note: I am not sure how to do a try-catch block to ensure the word as actually added to the datastore
     def post(self):
         user = users.get_current_user()
         language = self.request.get('LanguageName')
@@ -1213,6 +1212,7 @@ class WordPage(webapp2.RequestHandler):
         difficulty = get_difficulty_rating(difficulty_word)
         #Image. I am skipping this for now because I do not want to store my image in a model with Blobstore.
         #Instead I want to add the image to the images folder. If this is not possible then I will use Blobstore as TODO
+        #In any case this feature isn't very important
 
         #Check if word already exists for this language
         word_query = Word.query(Word.englishWord == englishWord, Word.languageName == language).fetch()
@@ -1285,7 +1285,7 @@ class ManageTests(webapp2.RequestHandler):
             self.response.write("Request Denied")
 
 
-#Admin page to creat test
+#Admin page to create test
 class CreateTest(webapp2.RequestHandler):
     def dispatch(self):
         # Get a session store for this request.
@@ -1324,6 +1324,7 @@ class CreateTest(webapp2.RequestHandler):
             self.response.write("Request Denied")
 
     #The user submitted the first half of the form
+    #Now they must add words to the test
     def post(self):
         user = users.get_current_user()
         login_url = users.create_login_url(self.request.path)
@@ -1665,6 +1666,86 @@ class ExtractMarks(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 
+#Admin change course code page
+#The user chooses a language and submits a new course code
+#Changing a course code removes all students from that course
+class ChangeCourseCode(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        if user:
+            if users.is_current_user_admin():
+                languages = Language.query().fetch()
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "languages": languages,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/ChangeCourseCode.html')
+                self.response.write(template.render(template_values))
+            else:
+                self.response.write("Request Denied")
+        else:
+            self.response.write("Request Denied")
+
+    def post(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+
+        #Get user input
+        new_code = self.request.get('newCourseCode')
+        languageName = self.request.get('LanguageName')
+
+        #Set course code
+        language_query = Language.query(Language.languageName == languageName).fetch().pop()
+        language_query.courseCode = new_code
+        language_query.put()
+
+        #Remove students from the course
+        student_language_query = StudentCourses.query().fetch()
+
+        if languageName == "Italian":
+            for student in student_language_query:
+                student.italian = False
+                student.put()
+
+        elif languageName == "French":
+            for student in student_language_query:
+                student.french = False
+                student.put()
+
+        message = "Course code changed."
+
+        languages = Language.query().fetch()
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+            "languages": languages,
+            "message": message,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/ChangeCourseCode.html')
+        self.response.write(template.render(template_values))
+
+
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
                                           ('/Italian', Italian),
@@ -1682,4 +1763,5 @@ application = webapp2.WSGIApplication([
                                           ('/AddTestWord', AddTestWord),
                                           ('/DeleteTest', DeleteTest),
                                           ('/ExtractMarks', ExtractMarks),
+                                          ('/ChangeCourseCode', ChangeCourseCode),
                                       ], config=config, debug=True)

@@ -19,6 +19,7 @@
     {% else %}
         <li><a href="{{ login_url }}">Login</a></li>
     {% endif %}
+    <li><a href="/TeachersHub">Admin</a></li>
 </ul>
 <style>
 
@@ -54,7 +55,7 @@
     </form>
     <p>&nbsp;</p>
 
-    <form action="/CourseCode" method="get">
+    <form action="/ChangeCourseCode" method="get">
         <input id="button" name="setCourseCode" type="submit" value="Set Course Code">
     </form>
 

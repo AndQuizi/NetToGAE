@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from django.db import models
-from google.appengine.api import users
 from google.appengine.ext import ndb
 
 #A model used to store user results for practise mode
@@ -10,8 +8,6 @@ class UserResults(ndb.Model):
     word = ndb.StringProperty(required=True)
     userAnswer = ndb.StringProperty(required=True)
     correctAnswer = ndb.StringProperty(required=True)
-
-
 
 
 #A model used to keep track of the users current practise session
@@ -24,7 +20,8 @@ class PractiseSession(ndb.Model):
     questionNumber = ndb.IntegerProperty(required=True)
 
 
-#A model used to keep track of the users current test session. Similar to PractiseSession
+#A model used to keep track of the users current test session.
+#Similar to PractiseSession but with testName property
 class TestSession(ndb.Model):
     sessionID = ndb.StringProperty(required=True)
     totalQuestions = ndb.IntegerProperty(required=True)
@@ -39,6 +36,7 @@ class Language(ndb.Model):
     languageName = ndb.StringProperty(required=True)
     courseCode = ndb.StringProperty(required=True)
 
+    #These methods are for inserting initial data when there is a datastore flush
     def storeInitialLanguage(self):
         Language(languageName='French',
                  courseCode='french123').put()
@@ -55,6 +53,7 @@ class Word(ndb.Model):
     translatedWord = ndb.StringProperty(required=True)
     difficulty = ndb.IntegerProperty(default=1)
 
+    #These methods are for inserting initial data when there is a datastore flush
     def store_initial_data_italian(self):
         Word(englishWord='Hi',
              imagePath='hello.jpg',
@@ -356,6 +355,7 @@ class Tests(ndb.Model):
     questions = ndb.StringProperty(repeated=True)
 
 
+#A model used to store student test marks
 class StudentTests(ndb.Model):
     studentID = ndb.UserProperty(required=True)
     testName = ndb.StringProperty(required=True)
