@@ -357,7 +357,7 @@ class Tests(ndb.Model):
 
 
 class StudentTests(ndb.Model):
-    studentID = ndb.StringProperty(required=True)
+    studentID = ndb.UserProperty(required=True)
     testName = ndb.StringProperty(required=True)
     language = ndb.StringProperty(required=True)
     attempts = ndb.IntegerProperty(default=0)

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css"/>
+    <title>Delete Test - Flash Language</title>
+</head>
+<body>
+
+<!--navigation bar-->
+<ul id="nav">
+    <li><a href="/">Flash Language</a></li>
+    <li><a href="/About">About</a></li>
+    <li><a href="/Contact">Contact</a></li>
+    <li><a href="/Italian">Italian</a></li>
+    <li><a href="/French">French</a></li>
+    {% if user %}
+        <li><a href="{{ logout_url }}">Logout</a></li>
+    {% else %}
+        <li><a href="{{ login_url }}">Login</a></li>
+    {% endif %}
+</ul>
+<style>
+
+    h1, h2, h3 {
+        text-align: center;
+    }
+
+    p {
+        text-align: center;
+    }
+    .button2 {
+            width: 25px;
+            height: 10px;
+     }
+
+
+</style>
+
+
+<h1>Teachers Hub</h1>
+<h3>Delete Test</h3>
+<p>Warning: Deleteing a test deletes ALL student marks for that test. Delete with Caution!</p>
+<p>&nbsp;</p>
+<p>{{ message }}</p>
+
+<form method="post" enctype="multipart/form-data">
+
+<b>Italian</b>
+<br>
+<select name="testNameItalian">
+  {% for test in italian_tests %}
+      <option value="{{ test.testName }}">{{ test.testName }}</option>
+  {% endfor %}
+</select>
+<br>
+<input ID="button2" type="submit" name="deleteItalian" value="Delete Test" onclick="return confirm('Are you sure you want to delete?')">
+<p>&nbsp;</p>
+<b>French</b>
+<br>
+<select name="testNameFrench">
+  {% for test in french_tests %}
+      <option value="{{ test.testName }}">{{ test.testName }}</option>
+  {% endfor %}
+</select>
+<br>
+<input ID="button2" type="submit" name="deleteFrench" value="Delete Test" onclick="return confirm('Are you sure you want to delete?')">
+</form>
+<!--footer-->
+<hr/>
+<footer>
+    <p id="footer">&copy; 2014 - Flash Language</p>
+</footer>
+
+
+</body>
+</html>

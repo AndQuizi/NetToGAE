@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, sys
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'NetToGAE.settings'
 import random
 import string
@@ -48,7 +49,7 @@ def get_words(language, diff):
     diffNum = get_difficulty_rating(diff)
     # Get words from datastore with chosen language and difficulty
     word_query = Word.query(Word.languageName == language, Word.difficulty == diffNum)
-    #TODO: Only fetch about 20 when more words are added to DB
+    # TODO: Only fetch about 20 when more words are added to DB
     words = word_query.fetch()
     return words
 
@@ -60,8 +61,8 @@ def get_word_from_translation(translation):
     return words
 
 
-#Accepts list of english words
-#Returns a list of translated words
+# Accepts list of english words
+# Returns a list of translated words
 def translate_list(wordList, lang):
     returnList = []
     for word in wordList:
@@ -109,7 +110,7 @@ def get_test_attempts(valid_tests, user, lang):
     curr_attempts = []
     for test in valid_tests:
         student_test_query = StudentTests.query(StudentTests.testName == test.testName,
-                                                StudentTests.studentID == user.user_id(),
+                                                StudentTests.studentID == user,
                                                 StudentTests.language == lang).fetch()
         if len(student_test_query) != 0:
             student_test = student_test_query.pop()
@@ -294,7 +295,6 @@ class PractiseIntro(webapp2.RequestHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('templates/PractiseIntro.html')
         self.response.write(template.render(template_values))
-
 
 
 #Practise page, includes practise results
@@ -692,6 +692,7 @@ class TestIntro(webapp2.RequestHandler):
 
                         #Get students attempt count for each test
                         curr_attempts = get_test_attempts(valid_tests, user, lang)
+                        curr_attempts.reverse()
 
                         template_values = {
                             'language': lang,
@@ -774,6 +775,7 @@ class TestIntro(webapp2.RequestHandler):
 
             #Get current time
             current_date = datetime.datetime.now()
+
             #Query tests, filtering start/end dates and language
             tests = Tests.query(Tests.languageName == lang, Tests.startDate <= current_date).fetch()
 
@@ -790,7 +792,7 @@ class TestIntro(webapp2.RequestHandler):
 
             #Get students attempt count for each test
             curr_attempts = get_test_attempts(valid_tests, user, lang)
-
+            curr_attempts.reverse()
             template_values = {
                 'language': lang,
                 'user': user,
@@ -854,14 +856,14 @@ class TestPage(webapp2.RequestHandler):
             query = Tests.query(Tests.testName == test_choice, Tests.languageName == lang).fetch().pop()
 
             #Check is student didn't max their attempts
-            student_test_query = StudentTests.query(StudentTests.studentID == user.user_id(),
+            student_test_query = StudentTests.query(StudentTests.studentID == user,
                                                     StudentTests.testName == test_choice,
                                                     StudentTests.language == lang).fetch()
             can_take = True
 
             #The student never took this test before
             if len(student_test_query) == 0:
-                StudentTests(studentID=user.user_id(),
+                StudentTests(studentID=user,
                              testName=test_choice,
                              language=lang,
                              attempts=1,
@@ -952,11 +954,11 @@ class TestPage(webapp2.RequestHandler):
             current_word = get_word_from_translation(word_list.pop()).pop()
             translation = current_word.translatedWord
 
-            #Delete previous entries of this practise session
+            #Delete previous entries of this test session
             test_query = TestSession.query(TestSession.sessionID == user.user_id()).fetch(keys_only=True)
             ndb.delete_multi(test_query)
 
-            #Save current practise session
+            #Save current test session
             TestSession(sessionID=user.user_id(),
                         totalQuestions=test_choice,
                         wordStrings=word_list,
@@ -997,6 +999,8 @@ class TestPage(webapp2.RequestHandler):
             test_query = TestSession.query(TestSession.sessionID == user.user_id())
             test_state = test_query.fetch()
 
+            #Make sure there is a current session
+            #This statement should always be true
             if len(test_state) != 0:
 
                 #Get current state of test session
@@ -1095,14 +1099,14 @@ class TestPage(webapp2.RequestHandler):
                     test_name = test_state.testName
 
                     #Save students score
-                    student_test_query = StudentTests.query(StudentTests.studentID == user.user_id(),
+                    student_test_query = StudentTests.query(StudentTests.studentID == user,
                                                             StudentTests.testName == test_name,
                                                             StudentTests.language == lang).fetch()
                     student_test = student_test_query.pop()
                     student_test.score = score
                     student_test.put()
 
-                    #Deletes all practise sessions and user results saved in the datastore
+                    #Deletes all sessions and temporary user results saved in the datastore
                     test_query = TestSession.query(TestSession.sessionID == user.user_id()).fetch(keys_only=True)
                     ndb.delete_multi(test_query)
 
@@ -1280,6 +1284,7 @@ class ManageTests(webapp2.RequestHandler):
         else:
             self.response.write("Request Denied")
 
+
 #Admin page to creat test
 class CreateTest(webapp2.RequestHandler):
     def dispatch(self):
@@ -1382,6 +1387,7 @@ class CreateTest(webapp2.RequestHandler):
             template = JINJA_ENVIRONMENT.get_template('templates/CreateTest.html')
             self.response.write(template.render(template_values))
 
+
 #Called when the user adds a word to a test
 class AddTestWord(webapp2.RequestHandler):
     def dispatch(self):
@@ -1410,7 +1416,8 @@ class AddTestWord(webapp2.RequestHandler):
             test_helper = CreateTestHelper.query(CreateTestHelper.adminID == user.user_id()).fetch().pop()
 
             #Check if word exists for this language
-            word_query = Word.query(Word.englishWord == englishWord, Word.languageName == test_helper.languageName).fetch()
+            word_query = Word.query(Word.englishWord == englishWord,
+                                    Word.languageName == test_helper.languageName).fetch()
 
             #The word exists and we can use it
             if len(word_query) != 0:
@@ -1422,11 +1429,11 @@ class AddTestWord(webapp2.RequestHandler):
                 tanslated_list.reverse()
 
                 template_values = {
-                        "user": user,
-                        "login_url": login_url,
-                        "logout_url": logout_url,
-                        "word_list": word_list,
-                        "translated_list": tanslated_list
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "word_list": word_list,
+                    "translated_list": tanslated_list
                 }
 
                 template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
@@ -1439,12 +1446,12 @@ class AddTestWord(webapp2.RequestHandler):
                 tanslated_list = translate_list(word_list, test_helper.languageName)
                 tanslated_list.reverse()
                 template_values = {
-                        "user": user,
-                        "login_url": login_url,
-                        "logout_url": logout_url,
-                        "message": message,
-                        "word_list": word_list,
-                        "translated_list": tanslated_list
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "message": message,
+                    "word_list": word_list,
+                    "translated_list": tanslated_list
                 }
 
                 template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
@@ -1479,14 +1486,182 @@ class AddTestWord(webapp2.RequestHandler):
             else:
                 message = "Error: No words were added. A test should have at least one question."
                 template_values = {
-                        "user": user,
-                        "login_url": login_url,
-                        "logout_url": logout_url,
-                        "message": message,
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "message": message,
                 }
 
                 template = JINJA_ENVIRONMENT.get_template('templates/AddTestWord.html')
                 self.response.write(template.render(template_values))
+
+
+#Admin page to delete test
+class DeleteTest(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+        #Display page
+        #Make sure user is admin
+        if user:
+            if users.is_current_user_admin():
+                italian_tests = Tests.query(Tests.languageName == "Italian").fetch()
+                french_tests = Tests.query(Tests.languageName == "French").fetch()
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "italian_tests": italian_tests,
+                    "french_tests": french_tests,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/DeleteTest.html')
+                self.response.write(template.render(template_values))
+            else:
+                self.response.write("Request Denied")
+        else:
+            self.response.write("Request Denied")
+
+    #The user wishes to delete a test
+    def post(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+
+        #If an italian test is deleted
+        if self.request.get('deleteItalian'):
+            test_name = self.request.get('testNameItalian')
+
+            query = Tests.query(Tests.testName == test_name, Tests.languageName == "Italian").fetch(keys_only=True)
+            ndb.delete_multi(query)
+
+            query = StudentTests.query(StudentTests.testName == test_name, StudentTests.language == "Italian").fetch(
+                keys_only=True)
+            ndb.delete_multi(query)
+
+            #If a french test is deleted
+        elif self.request.get('deleteFrench'):
+            test_name = self.request.get('testNameFrench')
+
+            query = Tests.query(Tests.testName == test_name, Tests.languageName == "French").fetch(keys_only=True)
+            ndb.delete_multi(query)
+
+            query = StudentTests.query(StudentTests.testName == test_name, StudentTests.language == "French").fetch(
+                keys_only=True)
+            ndb.delete_multi(query)
+
+        italian_tests = Tests.query(Tests.languageName == "Italian").fetch()
+        french_tests = Tests.query(Tests.languageName == "French").fetch()
+
+        message = "Delete Successful"
+
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+            "italian_tests": italian_tests,
+            "french_tests": french_tests,
+            "message": message,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/DeleteTest.html')
+        self.response.write(template.render(template_values))
+
+
+#Admin extract marks page
+#The user can pick a test and then see all student results
+class ExtractMarks(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        return self.session_store.get_session()
+
+    def get(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+
+        #Display page
+        #Make sure user is admin
+        if user:
+            if users.is_current_user_admin():
+                italian_tests = Tests.query(Tests.languageName == "Italian").fetch()
+                french_tests = Tests.query(Tests.languageName == "French").fetch()
+                template_values = {
+                    "user": user,
+                    "login_url": login_url,
+                    "logout_url": logout_url,
+                    "italian_tests": italian_tests,
+                    "french_tests": french_tests,
+                }
+                template = JINJA_ENVIRONMENT.get_template('templates/ExtractMarks.html')
+                self.response.write(template.render(template_values))
+            else:
+                self.response.write("Request Denied")
+        else:
+            self.response.write("Request Denied")
+
+    #The user wants to extract marks for test
+    def post(self):
+        user = users.get_current_user()
+        login_url = users.create_login_url(self.request.path)
+        logout_url = users.create_logout_url(self.request.path)
+
+        #If an italian test is chosen
+        #Get student marks
+        if self.request.get('extractItalian'):
+            test_name = self.request.get('testNameItalian')
+            query = StudentTests.query(StudentTests.testName == test_name, StudentTests.language == "Italian").fetch()
+
+        #If a french test is chosen
+        #Get student marks
+        elif self.request.get('extractFrench'):
+            test_name = self.request.get('testNameFrench')
+            query = StudentTests.query(StudentTests.testName == test_name, StudentTests.language == "French").fetch()
+
+        #Get amount of questions in the test
+        attempt_query = Tests.query(Tests.testName == test_name).fetch().pop()
+        questions = len(attempt_query.questions)
+
+        italian_tests = Tests.query(Tests.languageName == "Italian").fetch()
+        french_tests = Tests.query(Tests.languageName == "French").fetch()
+
+        template_values = {
+            "user": user,
+            "login_url": login_url,
+            "logout_url": logout_url,
+            "italian_tests": italian_tests,
+            "french_tests": french_tests,
+            "marks": query,
+            "questions": questions,
+        }
+        template = JINJA_ENVIRONMENT.get_template('templates/ExtractMarks.html')
+        self.response.write(template.render(template_values))
+
 
 application = webapp2.WSGIApplication([
                                           ('/', MainPage),
@@ -1503,4 +1678,6 @@ application = webapp2.WSGIApplication([
                                           ('/ManageTests', ManageTests),
                                           ('/CreateTest', CreateTest),
                                           ('/AddTestWord', AddTestWord),
+                                          ('/DeleteTest', DeleteTest),
+                                          ('/ExtractMarks', ExtractMarks),
                                       ], config=config, debug=True)
