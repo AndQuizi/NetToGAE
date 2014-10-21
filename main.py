@@ -1750,7 +1750,7 @@ application = webapp2.WSGIApplication([
                                           ('/', MainPage),
                                           ('/Italian', Italian),
                                           ('/French', French),
-                                          ('/About', About),
+                                          ('/About2', About),
                                           ('/Contact', Contact),
                                           ('/PractiseIntro', PractiseIntro),
                                           ('/PractisePage', PractisePage),
