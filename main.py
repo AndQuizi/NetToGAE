@@ -1642,10 +1642,12 @@ class ExtractMarks(webapp2.RequestHandler):
         elif self.request.get('extractFrench'):
             test_name = self.request.get('testNameFrench')
             query = StudentTests.query(StudentTests.testName == test_name, StudentTests.language == "French").fetch()
-
+        questions = 0
         #Get amount of questions in the test
-        attempt_query = Tests.query(Tests.testName == test_name).fetch().pop()
-        questions = len(attempt_query.questions)
+        attempt_query = Tests.query(Tests.testName == test_name).fetch()
+        if len(attempt_query) != 0:
+            attempt_query = attempt_query.pop()
+            questions = len(attempt_query.questions)
 
         italian_tests = Tests.query(Tests.languageName == "Italian").fetch()
         french_tests = Tests.query(Tests.languageName == "French").fetch()
