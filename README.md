@@ -9,14 +9,12 @@ Complete:
 -Sessions
 -Practise mode 
 -Datastore
--Some unit tests
+-Unit tests
 -User accounts
 -Test mode
+-Admin mode
 
 TODO:
--Unit tests for new models
--Refactoring
--Bug fixes
--Admin mode
--Error pages (404s)
+-Bug fixes (as the are found)
 -UI
+-I could, and probably should, reformat this project becuase almost everything is in main.py
