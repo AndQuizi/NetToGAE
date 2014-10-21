@@ -756,7 +756,11 @@ class TestIntro(webapp2.RequestHandler):
         }
 
         #Get course code
-        course_code = Language.query(Language.languageName == lang).fetch().pop().courseCode
+        course_code = Language.query(Language.languageName == lang).fetch()
+        if len(course_code) != 0:
+            course_code = course_code.pop().courseCode
+        else:
+            course_code = ""
 
         #If user inputted code is correct
         if code == course_code:
