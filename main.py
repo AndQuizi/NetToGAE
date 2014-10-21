@@ -375,8 +375,10 @@ class PractisePage(webapp2.RequestHandler):
             words = get_words(lang, diff)
             shuffle(words)
 
+            current_word = None
             #Get first word
-            current_word = words.pop()
+            if len(words) != 0:
+                current_word = words.pop()
 
             #Put rest of words/question in list (acts as a Queue)
             word_list = []
@@ -1750,7 +1752,7 @@ application = webapp2.WSGIApplication([
                                           ('/', MainPage),
                                           ('/Italian', Italian),
                                           ('/French', French),
-                                          ('/About2', About),
+                                          ('/About', About),
                                           ('/Contact', Contact),
                                           ('/PractiseIntro', PractiseIntro),
                                           ('/PractisePage', PractisePage),
