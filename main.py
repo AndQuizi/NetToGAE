@@ -601,15 +601,10 @@ class PractisePage(webapp2.RequestHandler):
                     results = user_result_query.fetch()
 
                     #Values for template
-                    #NOTICE: The last question answered does not appear in "results" list
-                    #To workaround this I manually add the last questions information to template
                     template_values = {
                         'results': results,
                         'score': score,
                         'questionNumber': question_number - 1,
-                        'answer': last_word,
-                        'choice': choice,
-                        'prevWord': prevWord,
                         "user": user,
                         "login_url": login_url,
                         "logout_url": logout_url,
@@ -1099,9 +1094,6 @@ class TestPage(webapp2.RequestHandler):
                         'results': results,
                         'score': score,
                         'questionNumber': question_number - 1,
-                        'answer': last_word,
-                        'choice': choice,
-                        'prevWord': prevWord,
                         'user': user,
                         'login_url': login_url,
                         'logout_url': logout_url,

@@ -85,7 +85,7 @@ class WordTestCases(unittest.TestCase):
              difficulty=1).put()
 
         #Get french words
-        query = Word.query(Word.languageName == 'French').filter('difficulty=', 2)
+        query = Word.query(Word.languageName == 'French', Word.difficulty == 2)
         results = query.fetch()
 
         #Check to see if only 1 result was returned
